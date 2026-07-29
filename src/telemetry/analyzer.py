@@ -8,34 +8,50 @@ Archivo:
 analyzer.py
 
 Responsabilidad:
-Interpretar la información recibida desde Windows.
+Analizar la ventana activa.
 """
+
+from models.event import Event
 
 
 def analyze_window(window):
 
     if window is None:
+
         return None
 
-    title = window["title"]
+    title = window.get("title", "").strip()
 
-    return {
-        "title": title,
-        "application": detect_application(title)
-    }
+    if not title:
 
+        return None
 
-def detect_application(title):
+    application = "Desconocida"
 
-    title = title.lower()
+    if "Visual Studio Code" in title:
 
-    if "visual studio code" in title:
-        return "VS Code"
+        application = "VS Code"
 
-    if "outlook" in title:
-        return "Outlook"
+    elif "Microsoft Edge" in title:
 
-    if "edge" in title:
-        return "Edge"
+        application = "Edge"
 
-    return "Desconocida"
+    elif "Outlook" in title:
+
+        application = "Outlook"
+
+    elif "WhatsApp" in title:
+
+        application = "WhatsApp"
+
+    elif "Lex-Doctor" in title:
+
+        application = "Lex Doctor"
+
+    return Event(
+
+        application=application,
+
+        title=title
+
+    )
