@@ -1,0 +1,2 @@
+PyGetWindow
+pywin32

@@ -12,8 +12,9 @@ Administrar la base de datos SQLite.
 """
 
 import sqlite3
+from pathlib import Path
 
-DATABASE = "secondchair.db"
+DATABASE = Path("data") / "secondchair.db"
 
 
 def connect():
@@ -34,7 +35,9 @@ def initialize():
 
             application TEXT NOT NULL,
 
-            title TEXT NOT NULL
+            title TEXT NOT NULL,
+
+            duration INTEGER DEFAULT 0
 
         )
     """)
@@ -43,16 +46,21 @@ def initialize():
     conn.close()
 
 
-def save_event(timestamp, application, title):
+def save_event(timestamp, application, title, duration=0):
 
     conn = connect()
     cursor = conn.cursor()
 
     cursor.execute("""
         INSERT INTO events
-        (timestamp, application, title)
-        VALUES (?, ?, ?)
-    """, (timestamp, application, title))
+        (timestamp, application, title, duration)
+        VALUES (?, ?, ?, ?)
+    """, (
+        timestamp,
+        application,
+        title,
+        duration
+    ))
 
     conn.commit()
     conn.close()
