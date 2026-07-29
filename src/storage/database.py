@@ -14,16 +14,22 @@ Administrar la base de datos SQLite.
 import sqlite3
 from pathlib import Path
 
-DATABASE = Path("data") / "secondchair.db"
+
+DATA_FOLDER = Path("data")
+DATABASE = DATA_FOLDER / "secondchair.db"
 
 
 def connect():
+
+    DATA_FOLDER.mkdir(exist_ok=True)
+
     return sqlite3.connect(DATABASE)
 
 
 def initialize():
 
     conn = connect()
+
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -31,13 +37,15 @@ def initialize():
 
             id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-            timestamp TEXT NOT NULL,
+            start_time TEXT,
 
-            application TEXT NOT NULL,
+            end_time TEXT,
 
-            title TEXT NOT NULL,
+            duration INTEGER,
 
-            duration INTEGER DEFAULT 0
+            application TEXT,
+
+            title TEXT
 
         )
     """)
@@ -46,21 +54,39 @@ def initialize():
     conn.close()
 
 
-def save_event(timestamp, application, title, duration=0):
+def save_event(
+    start_time,
+    end_time,
+    duration,
+    application,
+    title
+):
 
     conn = connect()
+
     cursor = conn.cursor()
 
-    cursor.execute("""
+    cursor.execute(
+        """
         INSERT INTO events
-        (timestamp, application, title, duration)
-        VALUES (?, ?, ?, ?)
-    """, (
-        timestamp,
-        application,
-        title,
-        duration
-    ))
+        (
+            start_time,
+            end_time,
+            duration,
+            application,
+            title
+        )
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (
+            start_time,
+            end_time,
+            duration,
+            application,
+            title
+        )
+    )
 
     conn.commit()
+
     conn.close()

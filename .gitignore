@@ -1,16 +1,37 @@
 # Entorno virtual
 .venv/
+venv/
 
-# Base de datos
-*.db
-
-# Caché de Python
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 
-# Configuración local de VS Code
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# IDE
 .vscode/
+.idea/
 
-# Archivos del sistema
+# Variables de entorno
+.env
+.env.*
+
+# Sistema operativo
 .DS_Store
 Thumbs.db
+
+# Pytest
+.pytest_cache/
+
+# Distribución
+build/
+dist/
+*.egg-info/

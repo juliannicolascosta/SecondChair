@@ -8,59 +8,92 @@ Archivo:
 observer.py
 
 Responsabilidad:
-Observar el entorno de trabajo.
+Observar el entorno de trabajo y registrar eventos.
 """
 
 from datetime import datetime
 import time
+import traceback
 
 from telemetry.windows import get_active_window
 from telemetry.analyzer import analyze_window
-from telemetry.classifier import classify
 from storage.database import save_event
 
 
 def observe():
 
-    last_window = None
-    last_change = time.time()
+    current_window = None
+    start_time = None
 
     while True:
 
-        window = get_active_window()
+        try:
 
-        window = analyze_window(window)
+            window = get_active_window()
 
-        window = classify(window)
+            window = analyze_window(window)
 
-        if (
-            window is not None
-            and window["title"] is not None
-            and window["title"].strip()
-        ):
+            if (
+                window is None
+                or window["title"] is None
+                or not window["title"].strip()
+            ):
+                time.sleep(1)
+                continue
 
-            if window["title"] != last_window:
+            # Primera ventana detectada
 
-                now = datetime.now().strftime("%H:%M:%S")
+            if current_window is None:
 
-                duration = int(time.time() - last_change)
+                current_window = window
+                start_time = datetime.now()
 
                 print(
-                    f"{now} | "
+                    f"{start_time.strftime('%H:%M:%S')} | "
                     f"{window['application']} | "
-                    f"{window['category']} | "
-                    f"{window['activity']} | "
-                    f"{duration}s"
+                    f"{window['title']}"
+                )
+
+                time.sleep(1)
+                continue
+
+            # Cambio de ventana
+
+            if window["title"] != current_window["title"]:
+
+                end_time = datetime.now()
+
+                duration = int(
+                    (end_time - start_time).total_seconds()
                 )
 
                 save_event(
-                    now,
-                    window["application"],
-                    window["title"],
-                    duration
+                    start_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    end_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    duration,
+                    current_window["application"],
+                    current_window["title"]
                 )
 
-                last_window = window["title"]
-                last_change = time.time()
+                print(
+                    f"{end_time.strftime('%H:%M:%S')} | "
+                    f"{current_window['application']} | "
+                    f"{duration}s"
+                )
 
-        time.sleep(1)
+                current_window = window
+                start_time = end_time
+
+            time.sleep(1)
+
+        except KeyboardInterrupt:
+
+            print("\nSecond Chair detenido.")
+            break
+
+        except Exception:
+
+            print("\nERROR EN OBSERVER")
+            traceback.print_exc()
+
+            time.sleep(2)

@@ -1,2 +1,2 @@
-PyGetWindow
+pygetwindow
 pywin32
