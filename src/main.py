@@ -1,29 +1,34 @@
 """
 Second Chair
 
-Archivo:
-main.py
-
-Responsabilidad:
-Punto de entrada de la aplicación.
+Archivo principal.
 """
 
 from src.storage.database import initialize
+from src.memory.working_memory import WorkingMemory
 from src.telemetry.observer import observe
-from src.memory.manager import MemoryManager
+from src.analytics.reports import today_summary
 
 
-def start():
-
-    print("Second Chair ha iniciado correctamente.")
+def main():
 
     initialize()
 
-    memory = MemoryManager()
+    memory = WorkingMemory()
 
-    observe(memory)
+    print("Second Chair ha iniciado correctamente.")
+
+    try:
+
+        observe(memory)
+
+    finally:
+
+        print()
+
+        today_summary()
 
 
 if __name__ == "__main__":
 
-    start()
+    main()
