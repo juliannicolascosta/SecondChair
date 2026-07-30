@@ -8,31 +8,60 @@ Archivo:
 parser.py
 
 Responsabilidad:
-Extraer información útil desde títulos de ventanas.
+Extraer información contextual desde
+la ventana activa.
 """
 
 import re
 
 
-def extract_case(title):
+def parse(event):
 
-    pattern = r"(.+?)\s+c/\s+(.+)"
+    context = {}
 
-    match = re.search(
-        pattern,
-        title,
-        flags=re.IGNORECASE
-    )
+    application = event.application
+    title = event.title
 
-    if match:
-        return match.group(0)
+    # ---------------------------------------------------------
+    # Lex Doctor
+    # ---------------------------------------------------------
 
-    return None
+    if application == "Lex Doctor":
 
+        if "Procesos" in title:
+            context["section"] = "Procesos"
 
-def extract_pdf(title):
+        elif "Movimientos" in title:
+            context["section"] = "Movimientos"
 
-    if ".pdf" in title.lower():
-        return title
+        partes = re.split(r"\s[-~]\s", title)
 
-    return None
+        if len(partes) >= 2:
+
+            expediente = partes[-1].strip()
+
+            context["case"] = expediente
+
+            actor = expediente.split(" C/")[0].strip()
+
+            context["client"] = actor
+
+    # ---------------------------------------------------------
+    # VS Code
+    # ---------------------------------------------------------
+
+    elif application == "VS Code":
+
+        proyecto = title.split(" - ")[0].strip()
+
+        context["project"] = proyecto
+
+    # ---------------------------------------------------------
+    # PDFs
+    # ---------------------------------------------------------
+
+    if title.lower().endswith(".pdf"):
+
+        context["document"] = title
+
+    return context

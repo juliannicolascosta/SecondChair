@@ -35,7 +35,6 @@ def observe(memory):
             event = analyze_window(window)
 
             if event is None:
-
                 time.sleep(1)
                 continue
 
@@ -56,11 +55,18 @@ def observe(memory):
                     (end_time - start_time).total_seconds()
                 )
 
+                context = getattr(current_event, "context", {})
+
                 print(
+
                     f"{end_time.strftime('%H:%M:%S')} | "
+
                     f"{current_event.application} | "
+
                     f"{current_event.title} | "
+
                     f"{duration}s"
+
                 )
 
                 save_event(
@@ -73,7 +79,17 @@ def observe(memory):
 
                     current_event.application,
 
-                    current_event.title
+                    current_event.title,
+
+                    context.get("section"),
+
+                    context.get("client"),
+
+                    context.get("case"),
+
+                    context.get("project"),
+
+                    context.get("document")
 
                 )
 

@@ -25,35 +25,101 @@ def connect():
 
 
 def initialize():
+
     with connect() as conn:
+
         cursor = conn.cursor()
+
         cursor.execute("""
+
             CREATE TABLE IF NOT EXISTS events (
+
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+
                 start_time TEXT,
+
                 end_time TEXT,
+
                 duration INTEGER,
+
                 application TEXT,
-                title TEXT
+
+                title TEXT,
+
+                section TEXT,
+
+                client TEXT,
+
+                case_name TEXT,
+
+                project TEXT,
+
+                document TEXT
+
             )
+
         """)
+
         conn.commit()
 
 
-def save_event(start_time, end_time, duration, application, title):
+def save_event(
+
+    start_time,
+    end_time,
+    duration,
+    application,
+    title,
+    section=None,
+    client=None,
+    case_name=None,
+    project=None,
+    document=None
+
+):
+
     with connect() as conn:
+
         cursor = conn.cursor()
+
         cursor.execute(
+
             """
-            INSERT INTO events (
+
+            INSERT INTO events(
+
                 start_time,
                 end_time,
                 duration,
                 application,
-                title
+                title,
+                section,
+                client,
+                case_name,
+                project,
+                document
+
             )
-            VALUES (?, ?, ?, ?, ?)
+
+            VALUES(?,?,?,?,?,?,?,?,?,?)
+
             """,
-            (start_time, end_time, duration, application, title)
+
+            (
+
+                start_time,
+                end_time,
+                duration,
+                application,
+                title,
+                section,
+                client,
+                case_name,
+                project,
+                document
+
+            )
+
         )
+
         conn.commit()

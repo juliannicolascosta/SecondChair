@@ -11,7 +11,7 @@ Responsabilidad:
 Representar un evento de actividad del usuario.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
 
@@ -32,4 +32,10 @@ class Event:
 
     case: str | None = None
 
+    section: str | None = None
+
+    project: str | None = None
+
     document: str | None = None
+
+    context: dict = field(default_factory=dict)
