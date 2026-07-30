@@ -21,7 +21,7 @@ from src.context.engine import enrich
 from src.storage.database import save_event
 
 
-def observe():
+def observe(memory):
 
     current_event = None
     start_time = None
@@ -45,6 +45,8 @@ def observe():
 
                 current_event = event
                 start_time = datetime.now()
+
+                memory.register(event)
 
             elif event.title != current_event.title:
 
@@ -76,9 +78,20 @@ def observe():
                 )
 
                 current_event = event
+
                 start_time = datetime.now()
 
+                memory.register(event)
+
             time.sleep(1)
+
+        except KeyboardInterrupt:
+
+            memory.finish()
+
+            print("\nSecond Chair detenido.")
+
+            break
 
         except Exception:
 

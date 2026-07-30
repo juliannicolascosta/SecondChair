@@ -5,11 +5,12 @@ Archivo:
 main.py
 
 Responsabilidad:
-Punto de entrada del sistema.
+Punto de entrada de la aplicación.
 """
 
 from src.storage.database import initialize
 from src.telemetry.observer import observe
+from src.memory.manager import MemoryManager
 
 
 def start():
@@ -18,19 +19,11 @@ def start():
 
     initialize()
 
-    observe()
+    memory = MemoryManager()
+
+    observe(memory)
 
 
 if __name__ == "__main__":
 
-    try:
-
-        start()
-
-    except KeyboardInterrupt:
-
-        print("\nSecond Chair finalizado por el usuario.")
-
-    except Exception as error:
-
-        print(f"\nError inesperado: {error}")
+    start()
