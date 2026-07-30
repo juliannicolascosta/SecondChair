@@ -1,15 +1,50 @@
 # Second Chair
 
-**Observa. Aprende. Optimiza.**
-
 Second Chair es una plataforma de inteligencia operativa para estudios jurídicos.
 
-Su propósito es comprender cómo trabaja un estudio jurídico, construir una memoria operativa de cada expediente, detectar fricciones en los procesos y colaborar activamente en su optimización y automatización.
+Actualmente registra la actividad del usuario en Windows, identifica la aplicación utilizada y almacena eventos en una base SQLite.
 
-Second Chair no busca reemplazar el criterio profesional. Busca potenciarlo.
+## Estado actual
 
-La automatización no es el objetivo.
+Versión: v0.0.3
 
-La comprensión es el objetivo.
+Implementado:
 
-La automatización es una consecuencia.
+- Captura de ventana activa
+- Detección básica de aplicaciones
+- Persistencia SQLite
+- Registro de duración de eventos
+- Modelo Event
+- Arquitectura modular
+
+## Estructura
+
+```
+src/
+
+    main.py
+
+    models/
+        event.py
+
+    telemetry/
+        windows.py
+        analyzer.py
+        observer.py
+
+    storage/
+        database.py
+```
+
+## Próximo objetivo
+
+Construir el Context Engine.
+
+Second Chair deberá comprender:
+
+- qué cliente está abierto
+- qué expediente
+- qué documento
+- qué tarea está realizando el abogado
+
+para luego detectar fricciones y sugerir optimizaciones.

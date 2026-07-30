@@ -126,3 +126,41 @@ Second Chair será exitoso cuando sea capaz de responder, con precisión, pregun
 - ¿Qué hábitos reducen mi productividad?
 
 - ¿Qué debería estar haciendo ahora?
+
+---
+
+# Modelo de dominio
+
+El núcleo del sistema gira alrededor del objeto Event.
+
+```
+Event
+
+application
+
+title
+
+start_time
+
+end_time
+
+duration
+```
+
+En versiones futuras incorporará:
+
+```
+client
+
+case
+
+document
+
+category
+
+activity
+
+confidence
+```
+
+Todo el sistema utilizará Event como unidad de información.
