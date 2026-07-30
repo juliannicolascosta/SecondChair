@@ -8,15 +8,11 @@ Archivo:
 engine.py
 
 Responsabilidad:
-Construir el contexto de trabajo.
+Enriquecer eventos con información contextual.
 """
 
-from models.event import Event
-
-from context.parser import (
-    extract_case,
-    extract_pdf
-)
+from src.models.event import Event
+from src.context.parser import extract_case, extract_pdf
 
 
 def enrich(event: Event):

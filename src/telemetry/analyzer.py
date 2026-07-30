@@ -11,7 +11,7 @@ Responsabilidad:
 Analizar la ventana activa.
 """
 
-from models.event import Event
+from src.models.event import Event
 
 
 def analyze_window(window):

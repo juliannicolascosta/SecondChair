@@ -8,8 +8,8 @@ Responsabilidad:
 Punto de entrada del sistema.
 """
 
-from storage.database import initialize
-from telemetry.observer import observe
+from src.storage.database import initialize
+from src.telemetry.observer import observe
 
 
 def start():

@@ -15,10 +15,10 @@ from datetime import datetime
 import time
 import traceback
 
-from telemetry.windows import get_active_window
-from telemetry.analyzer import analyze_window
-from context.engine import enrich
-from storage.database import save_event
+from src.telemetry.windows import get_active_window
+from src.telemetry.analyzer import analyze_window
+from src.context.engine import enrich
+from src.storage.database import save_event
 
 
 def observe():

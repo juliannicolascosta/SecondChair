@@ -25,7 +25,6 @@ def extract_case(title):
     )
 
     if match:
-
         return match.group(0)
 
     return None
@@ -34,7 +33,6 @@ def extract_case(title):
 def extract_pdf(title):
 
     if ".pdf" in title.lower():
-
         return title
 
     return None
