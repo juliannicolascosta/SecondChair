@@ -17,41 +17,35 @@ from models.event import Event
 def analyze_window(window):
 
     if window is None:
-
         return None
 
     title = window.get("title", "").strip()
 
     if not title:
-
         return None
 
+    title_lower = title.lower()
     application = "Desconocida"
 
-    if "Visual Studio Code" in title:
-
+    if "visual studio code" in title_lower or "vscode" in title_lower:
         application = "VS Code"
 
-    elif "Microsoft Edge" in title:
-
+    elif "edge" in title_lower:
         application = "Edge"
+        
+    elif "chrome" in title_lower:
+        application = "Chrome"
 
-    elif "Outlook" in title:
-
+    elif "outlook" in title_lower:
         application = "Outlook"
 
-    elif "WhatsApp" in title:
-
+    elif "whatsapp" in title_lower:
         application = "WhatsApp"
 
-    elif "Lex-Doctor" in title:
-
+    elif "lex-doctor" in title_lower or "lex doctor" in title_lower or "lexdoctor" in title_lower:
         application = "Lex Doctor"
 
     return Event(
-
         application=application,
-
         title=title
-
     )

@@ -24,37 +24,35 @@ def classify(window):
     }
 
     # VS Code
-
     if window["application"] == "VS Code":
-
         result["category"] = "Desarrollo"
 
         if ".py" in title:
             result["activity"] = "Programación"
-
         elif ".md" in title:
             result["activity"] = "Documentación"
 
     # Outlook
-
     elif window["application"] == "Outlook":
-
         result["category"] = "Comunicación"
         result["activity"] = "Correo"
 
-    # Edge
+    # WhatsApp (App de Escritorio)
+    elif window["application"] == "WhatsApp":
+        result["category"] = "Comunicación"
+        result["activity"] = "Mensajería"
 
-    elif window["application"] == "Edge":
-
+    # Edge / Chrome
+    elif window["application"] in ["Edge", "Chrome"]:
         result["category"] = "Web"
 
-        if "chatgpt" in title:
+        if "chatgpt" in title or "gemini" in title:
             result["activity"] = "Asistencia IA"
+            
+        elif "github" in title:
+            result["activity"] = "Desarrollo"
 
-        elif "tribunal" in title or "poder judicial" in title:
-            result["activity"] = "Consulta Judicial"
-
-        elif "autoconsulta" in title:
+        elif "tribunal" in title or "poder judicial" in title or "autoconsulta" in title:
             result["activity"] = "Consulta Judicial"
 
         elif "whatsapp" in title:
@@ -67,9 +65,7 @@ def classify(window):
             result["activity"] = "Navegación"
 
     # Lex Doctor
-
-    elif "lex" in title:
-
+    elif window["application"] == "Lex Doctor" or "lex" in title:
         result["category"] = "Gestión Jurídica"
 
         if "procesos" in title:
