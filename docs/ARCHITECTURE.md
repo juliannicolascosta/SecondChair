@@ -47,7 +47,11 @@ Telemetry observa.
 
 Storage almacena.
 
-Memory interpreta.
+Context interpreta hechos observados mediante reglas explícitas.
+
+Memory agrupa y conserva contexto operativo.
+
+Analytics calcula métricas descriptivas sobre eventos persistidos.
 
 Optimizer propone mejoras.
 
@@ -105,7 +109,11 @@ Incluye:
 
 ### Sesión
 
-Conjunto de actividades comprendidas entre el inicio y el cierre de Second Chair.
+Una `WorkSession` es una secuencia de eventos que representan una única tarea intelectual. No coincide necesariamente con una aplicación ni con todo el tiempo de ejecución de SecondChair.
+
+Ejemplo: consultar un expediente en Lex Doctor, redactar en Word, leer un PDF y buscar jurisprudencia en Edge pueden pertenecer a una sola WorkSession.
+
+La sesión técnica completa del proceso y la WorkSession son conceptos diferentes. El modelo histórico `Session` representa la primera idea; el runtime v0.0.7 utiliza `WorkSession` para agrupar trabajo intelectual.
 
 ---
 
@@ -164,3 +172,111 @@ confidence
 ```
 
 Todo el sistema utilizará Event como unidad de información.
+
+`Event` continúa siendo la unidad de evidencia. `WorkSession` es una agrupación derivada y reconstruible; nunca reemplaza ni modifica los eventos originales.
+
+---
+
+# Flujo implementado
+
+```
+Windows -> Telemetry -> Context -> Event -> Storage
+                                      |        |
+                                      v        v
+                               SessionBuilder Analytics
+                                      |
+                                      v
+                                WorkSession
+```
+
+Telemetry obtiene `application` y `title`. Context enriquece el mismo `Event` con `client`, `case`, `section`, `project` y `document`. El observer cierra y persiste el evento anterior cuando detecta un cambio, y persiste el último evento durante un cierre limpio.
+
+Analytics consulta SQLite en modo lectura y construye un resumen diario con:
+
+- tiempo total;
+- tiempo por aplicación;
+- tiempo por expediente;
+- tiempo por cliente;
+- cambios entre contextos operativos consecutivos.
+
+El primer evento del día no cuenta como cambio de contexto. Analytics describe hechos persistidos; no interpreta fricciones, recomienda acciones ni utiliza inteligencia artificial.
+
+---
+
+# Work Session Engine
+
+El observer entrega a WorkingMemory eventos completos, con inicio, fin, duración y contexto. SessionBuilder incorpora cada evento a la sesión actual o la cierra cuando:
+
+- cambia un expediente explícito;
+- el siguiente evento comienza más de diez minutos después del anterior;
+- los contextos explícitos de cliente, expediente o proyecto son completamente incompatibles.
+
+Un cambio de aplicación no cierra una sesión. Los eventos sin anclas contextuales pueden continuar la tarea actual. WorkSession calcula aplicación principal, aplicaciones utilizadas, cambios de contexto, cantidad de eventos y duración entre el primer inicio y el último fin.
+
+WorkingMemory conserva la sesión actual y el historial de sesiones cerradas durante el proceso. En v0.0.7 las WorkSession no se persisten en SQLite.
+
+---
+
+# Domain Layer
+
+SecondChair separa dos representaciones:
+
+```text
+Observed World                       Domain World
+
+Event                                Client
+WorkSession                          Case
+Context detectado    -> Resolver -> Organization
+                                     Person
+                                     Document
+                                         |
+                                         v
+                                     Workspace
+```
+
+El Observed World registra evidencia. El Domain World representa entidades jurídicas estables. Resolver traduce contexto observado a candidatos, pero no los incorpora automáticamente.
+
+DomainRegistry garantiza unicidad y es el único responsable de agregar entidades a Workspace. Relations mantiene referencias simples entre objetos, sin graph database.
+
+En v0.0.8 esta capa está aislada: no modifica Telemetry, Analytics, WorkingMemory ni SQLite. Consultar [DOMAIN_MODEL.md](DOMAIN_MODEL.md) para el modelo completo.
+
+---
+
+# Deterministic Learning Engine
+
+Principio central:
+
+> Los eventos describen lo ocurrido. El Dominio describe la realidad conocida. Nunca deben confundirse.
+
+El flujo de v0.0.9 es:
+
+```text
+Completed WorkSession
+        |
+        v
+ DomainResolver       interpreta sin mutar
+        |
+        v
+LearningCandidate     conserva fuente, confianza y motivo
+        |
+        v
+ DomainLearner        decide promover o dejar pendiente
+        |
+        v
+ DomainRegistry       garantiza unicidad
+        |
+        v
+    Workspace         conserva conocimiento durante el proceso
+```
+
+DomainLearner sólo recibe WorkSession cerradas. Conserva los IDs aprendidos para impedir procesamiento repetido y devuelve un LearningResult por sesión. WorkingMemory guarda esos resultados para auditoría diaria.
+
+Los umbrales de promoción son constantes centralizadas. Una carátula completa de Lex Doctor puede promover expediente y cliente. Una contraparte sólo se promueve como organización cuando presenta un marcador explícito. Los documentos necesitan un nombre identificable y sólo se relacionan con un expediente inequívoco.
+
+La arquitectura aplica este orden de capacidades:
+
+```text
+reglas -> heurísticas -> estadística -> IA
+```
+
+v0.0.9 utiliza solamente las dos primeras, de forma determinista y offline. No persiste Workspace, no crea tablas y no modifica Analytics.

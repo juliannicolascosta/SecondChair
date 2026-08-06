@@ -1,56 +1,49 @@
-"""
-Second Chair
-
-Módulo:
-Analytics
-
-Archivo:
-queries.py
-
-Responsabilidad:
-Consultas sobre la base de datos.
-"""
+"""Read-only queries used by the Analytics layer."""
 
 import sqlite3
+from contextlib import closing
+from datetime import date
 from pathlib import Path
 
-
-DATABASE = Path("data") / "secondchair.db"
-
-
-def connect():
-    return sqlite3.connect(DATABASE)
+from src.storage.database import DATABASE
 
 
-def events_today():
+EVENT_COLUMNS = (
+    "start_time",
+    "end_time",
+    "duration",
+    "application",
+    "title",
+    "section",
+    "client",
+    "case_name",
+    "project",
+    "document",
+)
 
-    with connect() as conn:
 
-        cursor = conn.cursor()
+def events_for_date(day=None, database=DATABASE):
+    """Return the day's completed events in chronological order."""
 
-        cursor.execute(
+    selected_day = day or date.today()
+    database = Path(database)
 
-            """
-
-            SELECT
-
-                application,
-                title,
-                duration,
-                section,
-                client,
-                case_name,
-                project,
-                document
-
+    with closing(sqlite3.connect(database)) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            f"""
+            SELECT {', '.join(EVENT_COLUMNS)}
             FROM events
+            WHERE date(start_time) = date(?)
+            ORDER BY start_time, id
+            """,
+            (selected_day.isoformat(),),
+        ).fetchall()
 
-            WHERE date(start_time)=date('now','localtime')
+    return [dict(row) for row in rows]
 
-            ORDER BY start_time
 
-            """
+def events_today(database=DATABASE):
+    """Backward-compatible alias for callers that need today's events."""
 
-        )
-
-        return cursor.fetchall()
+    return events_for_date(database=database)

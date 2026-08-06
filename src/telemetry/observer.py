@@ -18,101 +18,91 @@ import traceback
 from src.telemetry.windows import get_active_window
 from src.telemetry.analyzer import analyze_window
 from src.context.engine import enrich
-from src.storage.database import save_event
+from src.storage.database import save_event_model
 
 
-def observe(memory):
+def complete_event(event, end_time, event_sink=save_event_model):
+    """Close, report and persist the event that has just finished."""
+
+    event.end_time = end_time
+    event.duration = max(
+        0,
+        int((event.end_time - event.start_time).total_seconds())
+    )
+
+    print(
+        f"{end_time.strftime('%H:%M:%S')} | "
+        f"{event.application} | "
+        f"{event.title} | "
+        f"{event.duration}s"
+    )
+
+    event_sink(event)
+
+
+def observe(
+    memory,
+    window_provider=get_active_window,
+    event_sink=save_event_model,
+    clock=datetime.now,
+    sleeper=time.sleep,
+    poll_interval=1,
+    max_iterations=None,
+):
 
     current_event = None
-    start_time = None
+    iterations = 0
 
-    while True:
+    try:
+        while max_iterations is None or iterations < max_iterations:
 
-        try:
+            try:
+                iterations += 1
 
-            window = get_active_window()
+                window = window_provider()
 
-            event = analyze_window(window)
+                event = analyze_window(window)
 
-            if event is None:
-                time.sleep(1)
-                continue
+                if event is None:
+                    sleeper(poll_interval)
+                    continue
 
-            event = enrich(event)
+                event = enrich(event)
 
-            if current_event is None:
+                if current_event is None:
 
-                current_event = event
-                start_time = datetime.now()
+                    current_event = event
+                    current_event.start_time = clock()
 
-                memory.register(event)
+                elif (
+                    event.title != current_event.title
+                    or event.application != current_event.application
+                ):
 
-            elif event.title != current_event.title:
+                    complete_event(current_event, clock(), event_sink)
+                    memory.register(current_event)
 
-                end_time = datetime.now()
+                    current_event = event
+                    current_event.start_time = clock()
 
-                duration = int(
-                    (end_time - start_time).total_seconds()
-                )
+                sleeper(poll_interval)
 
-                context = getattr(current_event, "context", {})
+            except KeyboardInterrupt:
 
-                print(
+                print("\nSecond Chair detenido.")
+                break
 
-                    f"{end_time.strftime('%H:%M:%S')} | "
+            except Exception:
 
-                    f"{current_event.application} | "
+                print("\nERROR EN OBSERVER")
 
-                    f"{current_event.title} | "
+                traceback.print_exc()
 
-                    f"{duration}s"
+                sleeper(2)
 
-                )
+    finally:
+        if current_event is not None and current_event.end_time is None:
+            complete_event(current_event, clock(), event_sink)
+            memory.register(current_event)
 
-                save_event(
-
-                    start_time.strftime("%Y-%m-%d %H:%M:%S"),
-
-                    end_time.strftime("%Y-%m-%d %H:%M:%S"),
-
-                    duration,
-
-                    current_event.application,
-
-                    current_event.title,
-
-                    context.get("section"),
-
-                    context.get("client"),
-
-                    context.get("case"),
-
-                    context.get("project"),
-
-                    context.get("document")
-
-                )
-
-                current_event = event
-
-                start_time = datetime.now()
-
-                memory.register(event)
-
-            time.sleep(1)
-
-        except KeyboardInterrupt:
-
-            memory.finish()
-
-            print("\nSecond Chair detenido.")
-
-            break
-
-        except Exception:
-
-            print("\nERROR EN OBSERVER")
-
-            traceback.print_exc()
-
-            time.sleep(2)
+        memory.finish()
