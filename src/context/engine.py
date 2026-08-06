@@ -20,4 +20,10 @@ def enrich(event):
 
     event.context = context
 
+    event.section = context.get("section")
+    event.client = context.get("client")
+    event.case = context.get("case")
+    event.project = context.get("project")
+    event.document = context.get("document")
+
     return event

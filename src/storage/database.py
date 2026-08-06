@@ -12,21 +12,36 @@ Administrar la base de datos SQLite.
 """
 
 import sqlite3
+from contextlib import closing
 from pathlib import Path
+
+from src.models.event import Event
 
 
 DATA_FOLDER = Path("data")
 DATABASE = DATA_FOLDER / "secondchair.db"
 
 
-def connect():
-    DATA_FOLDER.mkdir(exist_ok=True)
-    return sqlite3.connect(DATABASE)
+SCHEMA_VERSION = 1
+
+CONTEXT_COLUMNS = {
+    "section": "TEXT",
+    "client": "TEXT",
+    "case_name": "TEXT",
+    "project": "TEXT",
+    "document": "TEXT",
+}
 
 
-def initialize():
+def connect(database=DATABASE):
+    database = Path(database)
+    database.parent.mkdir(parents=True, exist_ok=True)
+    return sqlite3.connect(database)
 
-    with connect() as conn:
+
+def initialize(database=DATABASE):
+
+    with closing(connect(database)) as conn, conn:
 
         cursor = conn.cursor()
 
@@ -60,6 +75,19 @@ def initialize():
 
         """)
 
+        existing_columns = {
+            row[1]
+            for row in cursor.execute("PRAGMA table_info(events)")
+        }
+
+        for column, column_type in CONTEXT_COLUMNS.items():
+            if column not in existing_columns:
+                cursor.execute(
+                    f"ALTER TABLE events ADD COLUMN {column} {column_type}"
+                )
+
+        cursor.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
+
         conn.commit()
 
 
@@ -74,11 +102,12 @@ def save_event(
     client=None,
     case_name=None,
     project=None,
-    document=None
+    document=None,
+    database=DATABASE
 
 ):
 
-    with connect() as conn:
+    with closing(connect(database)) as conn, conn:
 
         cursor = conn.cursor()
 
@@ -123,3 +152,23 @@ def save_event(
         )
 
         conn.commit()
+
+
+def save_event_model(event: Event, database=DATABASE):
+    """Persist a completed Event using its typed fields."""
+
+    context = event.context or {}
+
+    save_event(
+        event.start_time.strftime("%Y-%m-%d %H:%M:%S"),
+        event.end_time.strftime("%Y-%m-%d %H:%M:%S"),
+        event.duration,
+        event.application,
+        event.title,
+        event.section or context.get("section"),
+        event.client or context.get("client"),
+        event.case or context.get("case"),
+        event.project or context.get("project"),
+        event.document or context.get("document"),
+        database=database,
+    )
