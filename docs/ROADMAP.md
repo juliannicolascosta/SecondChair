@@ -78,6 +78,24 @@
 
 ---
 
+## v0.1.0 — Persistencia segura del dominio
+- [x] DomainRepository separado de reglas de negocio
+- [x] Esquema versionado del dominio en secondchair.db
+- [x] Migración explícita y no destructiva 0→1
+- [x] Persistencia y recarga de todas las entidades
+- [x] Persistencia de relaciones normalizadas
+- [x] UUID y canonical_key estables
+- [x] Fechas, sesiones y tiempo acumulado
+- [x] Evidencia con procedencia y confianza
+- [x] Candidatos pending, accepted y rejected
+- [x] Protección contra reaprendizaje entre procesos
+- [x] Escrituras compuestas transaccionales
+- [x] Pruebas offline sobre bases temporales
+- [ ] Confirmación humana de candidatos
+- [ ] Cifrado de datos en reposo
+
+---
+
 ## v0.1
 - [x] Memory inicial en proceso
 - [ ] Detección de clientes

@@ -280,3 +280,42 @@ reglas -> heurísticas -> estadística -> IA
 ```
 
 v0.0.9 utiliza solamente las dos primeras, de forma determinista y offline. No persiste Workspace, no crea tablas y no modifica Analytics.
+
+---
+
+# Persistencia del dominio
+
+v0.1.0 ubica persistencia y serialización en `src/domain/repository.py` y `src/domain/serializer.py`. La decisión mantiene juntos el puerto de persistencia y el modelo que reconstruye, sin mezclarlo con `src/storage/database.py`, cuya responsabilidad sigue siendo `events`.
+
+```text
+Domain models/rules
+        |
+        v
+serializer.py       transformación pura
+        |
+        v
+repository.py       transacciones, migraciones y SQL
+        |
+        v
+secondchair.db
+   |          |
+ events   domain_* tables
+ hechos   conocimiento
+```
+
+Learner nunca ejecuta SQL. Repository nunca decide qué candidato promover. Registry conserva autoridad exclusiva sobre creación y recuperación de entidades en memoria.
+
+## Ciclo de carga
+
+1. Inicializar `events`.
+2. Inicializar y migrar el esquema del dominio.
+3. Cargar Workspace, UUID, métricas y relaciones.
+4. Reconstruir DomainRegistry y DomainResolver.
+5. Cargar las claves de WorkSession ya aprendidas.
+6. Crear DomainLearner y WorkingMemory.
+
+## Ciclo de guardado
+
+Una WorkSession cerrada produce LearningResult. En una sola transacción, Repository actualiza entidades y relaciones, guarda evidencia/candidatos y marca la clave estable de sesión como aprendida. Un rollback conserva el LearningResult en memoria y no afecta `events`.
+
+El esquema del dominio usa `domain_meta.schema_version`; no reutiliza `PRAGMA user_version`, reservado por el esquema histórico de eventos. Todas las conexiones activan foreign keys.

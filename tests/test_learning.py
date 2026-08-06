@@ -156,6 +156,7 @@ class DomainLearnerTests(unittest.TestCase):
         self.assertEqual(result.created_documents, [])
         self.assertEqual(result.updated_entities, [])
         self.assertEqual(result.pending_candidates, [])
+        self.assertEqual(result.accepted_candidates, [])
         self.assertEqual(result.warnings, [])
 
     def test_learning_is_fully_offline(self):

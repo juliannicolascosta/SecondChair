@@ -6,7 +6,7 @@ Actualmente registra la actividad del usuario en Windows, identifica la aplicaci
 
 ## Estado actual
 
-Versión: v0.0.9 (en desarrollo)
+Versión: v0.1.0 (en desarrollo)
 
 Implementado:
 
@@ -30,6 +30,8 @@ Implementado:
 - Resolver no mutante para contexto observado
 - Aprendizaje determinista y conservador desde WorkSession cerradas
 - Auditoría diaria de conocimiento creado y candidatos pendientes
+- Persistencia transaccional del dominio en tablas separadas de events
+- Recarga de identidades, relaciones, evidencia y métricas entre reinicios
 
 ## Estructura
 
@@ -70,9 +72,11 @@ src/
         candidates.py
         entities.py
         learner.py
+        repository.py
         registry.py
         resolver.py
         relations.py
+        serializer.py
         workspace.py
 
 tests/
@@ -114,6 +118,14 @@ Desde v0.0.9, WorkingMemory entrega las WorkSession terminadas a DomainLearner. 
 > Los eventos describen lo ocurrido. El Dominio describe la realidad conocida. Nunca deben confundirse.
 
 El aprendizaje funciona completamente offline y sigue el orden: reglas, heurísticas, estadística e IA. En este hito sólo se aplican reglas y heurísticas deterministas.
+
+## Persistencia del dominio
+
+Desde v0.1.0, eventos y dominio comparten `data/secondchair.db` pero utilizan tablas y versiones de esquema independientes. `events` conserva hechos observados; las tablas `domain_*` conservan conocimiento, relaciones, evidencia, candidatos y sesiones ya aprendidas.
+
+La inicialización carga Workspace y reconstruye Registry antes de iniciar Telemetry. Cada WorkSession cerrada se persiste en una transacción. Las pruebas siempre usan bases temporales.
+
+La base contiene información jurídica sensible en texto plano. El cifrado en reposo queda como riesgo prioritario pendiente.
 
 ## Pruebas
 

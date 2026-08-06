@@ -63,3 +63,16 @@
 - La idempotencia necesita proteger tanto sesiones repetidas como entidades ya conocidas.
 - Autonomía offline y determinismo primero reducen dependencias y hacen reproducibles las decisiones.
 - Los candidatos ambiguos requerirán confirmación humana antes de convertirse en conocimiento.
+
+---
+
+## v0.1.0
+
+- Compartir el archivo SQLite no implica mezclar hechos y conocimiento: necesitan tablas, versiones y responsabilidades separadas.
+- Una transacción de aprendizaje debe incluir entidades, relaciones, evidencia, candidatos y la marca de sesión.
+- El ID secuencial de una sesión no sobrevive reinicios; la deduplicación necesita una clave derivada de hechos estables.
+- Registry debe reconstruirse con los UUID persistidos para conservar identidad y unicidad.
+- Procedencia y confianza también deben conservarse para promociones aceptadas, no sólo para dudas pendientes.
+- SQLite aplica foreign keys por conexión; activarlas una sola vez no es suficiente.
+- Las bases temporales permiten validar migraciones y rollback sin tocar información real.
+- La información jurídica en texto plano es un riesgo prioritario aunque el archivo permanezca fuera de Git.

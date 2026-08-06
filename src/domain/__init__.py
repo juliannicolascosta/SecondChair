@@ -12,6 +12,7 @@ from src.domain.registry import DomainRegistry
 from src.domain.resolver import DomainResolution, DomainResolver
 from src.domain.candidates import LearningCandidate, LearningResult
 from src.domain.learner import DomainLearner
+from src.domain.repository import DomainRepository
 
 __all__ = [
     "Case",
@@ -21,6 +22,7 @@ __all__ = [
     "DomainResolution",
     "DomainResolver",
     "DomainLearner",
+    "DomainRepository",
     "LearningCandidate",
     "LearningResult",
     "Organization",

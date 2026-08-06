@@ -5,6 +5,7 @@ from src.memory.reports import sessions_summary
 from src.memory.session_builder import SessionBuilder
 from src.memory.working_memory import WorkingMemory
 from src.models.event import Event
+from src.models.work_session import WorkSession
 
 
 BASE_TIME = datetime(2026, 8, 5, 9, 0, 0)
@@ -32,6 +33,14 @@ def completed_event(
 
 
 class SessionBuilderTests(unittest.TestCase):
+
+    def test_learning_identity_does_not_depend_on_process_sequence_id(self):
+        observed = completed_event(case="Case A")
+
+        first = WorkSession.from_event(1, observed)
+        second = WorkSession.from_event(999, observed)
+
+        self.assertEqual(first.learning_id, second.learning_id)
 
     def test_creates_session_and_counts_events(self):
         builder = SessionBuilder()

@@ -95,3 +95,17 @@ Second Chair no solo propondrá una mejora.
 También explicará por qué considera que esa mejora es conveniente, qué evidencia observó y cuál sería el beneficio esperado.
 
 El objetivo es que el usuario pueda confiar en la recomendación y decidir con criterio.
+
+---
+
+## 12. Separar observación de conocimiento
+
+Los eventos describen lo ocurrido. El Dominio describe la realidad conocida. Nunca deben confundirse.
+
+El conocimiento confirmado debe permanecer separado de candidatos pendientes y toda incorporación debe conservar procedencia, confianza y trazabilidad.
+
+---
+
+## 13. Autonomía y custodia local
+
+SecondChair debe funcionar completamente offline. Los datos jurídicos permanecen bajo control local del estudio y toda evolución de almacenamiento debe priorizar integridad, privacidad y recuperación.

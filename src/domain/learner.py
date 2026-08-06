@@ -11,6 +11,7 @@ from src.domain.relations import (
 )
 from src.domain.resolver import DomainResolver
 from src.domain.workspace import create_workspace
+from src.domain.entities import utc_now
 
 
 AUTO_PROMOTION_THRESHOLD = 0.90
@@ -43,7 +44,8 @@ class DomainLearner:
     def learn_from_session(self, session):
         result = LearningResult()
 
-        if session.id in self.learned_session_ids:
+        session_id = session.learning_id
+        if session_id in self.learned_session_ids:
             result.warnings.append("WorkSession already learned")
             return result
 
@@ -54,7 +56,7 @@ class DomainLearner:
             result.warnings.append("WorkSession contains open or incomplete events")
             return result
 
-        self.learned_session_ids.add(session.id)
+        self.learned_session_ids.add(session_id)
 
         lex_case_event = next((
             event
@@ -115,6 +117,8 @@ class DomainLearner:
                 relate_case_document(case, document)
                 self._mark_updated(result, case, document)
 
+        self._update_metrics(result, session)
+
         return result
 
     @staticmethod
@@ -124,6 +128,30 @@ class DomainLearner:
             if entity.id not in known_ids:
                 result.updated_entities.append(entity)
                 known_ids.add(entity.id)
+
+    @staticmethod
+    def _update_metrics(result, session):
+        entities = []
+        for collection in (
+            result.created_clients,
+            result.created_cases,
+            result.created_organizations,
+            result.created_documents,
+            result.updated_entities,
+        ):
+            for entity in collection:
+                if all(existing.id != entity.id for existing in entities):
+                    entities.append(entity)
+
+        now = utc_now()
+        for entity in entities:
+            entity.first_seen = entity.first_seen or session.start_time
+            entity.last_seen = max(
+                filter(None, (entity.last_seen, session.end_time))
+            )
+            entity.updated_at = now
+            entity.total_sessions += 1
+            entity.total_time += session.duration
 
     def _learn_case(self, name, caption, lex_event, result):
         if not name:
@@ -143,6 +171,11 @@ class DomainLearner:
                 if caption
                 else "Case context does not contain a complete caption"
             ),
+            status=(
+                "pending"
+                if confidence < AUTO_PROMOTION_THRESHOLD
+                else "accepted"
+            ),
         )
 
         if candidate.requires_confirmation:
@@ -153,6 +186,7 @@ class DomainLearner:
         case = self.registry.obtener_o_crear_expediente(candidate.canonical_name)
         if existing is None:
             result.created_cases.append(case)
+        result.accepted_candidates.append(self._with_entity_id(candidate, case))
         return case
 
     def _learn_client(self, observed_name, caption, lex_event, result):
@@ -174,6 +208,7 @@ class DomainLearner:
                 if deterministic
                 else "Client context lacks deterministic Lex Doctor evidence"
             ),
+            status="accepted" if deterministic else "pending",
         )
 
         if candidate.requires_confirmation:
@@ -184,6 +219,7 @@ class DomainLearner:
         client = self.registry.obtener_o_crear_cliente(candidate.canonical_name)
         if existing is None:
             result.created_clients.append(client)
+        result.accepted_candidates.append(self._with_entity_id(candidate, client))
         return client
 
     def _learn_counterparty(self, caption, result):
@@ -205,6 +241,7 @@ class DomainLearner:
                 if organization_signal
                 else "Counterparty may be either a person or an organization"
             ),
+            status="accepted" if organization_signal else "pending",
         )
 
         if candidate.requires_confirmation:
@@ -215,6 +252,9 @@ class DomainLearner:
         organization = self.registry.obtener_o_crear_empresa(candidate.canonical_name)
         if existing is None:
             result.created_organizations.append(organization)
+        result.accepted_candidates.append(
+            self._with_entity_id(candidate, organization)
+        )
         return organization
 
     def _promote_document(self, name, result):
@@ -226,12 +266,22 @@ class DomainLearner:
             metadata={},
             requires_confirmation=False,
             reason="Identifiable document name observed in a completed event",
+            status="accepted",
         )
         existing = self.registry.find_document(candidate.canonical_name)
         document = self.registry.obtener_o_crear_documento(candidate.canonical_name)
         if existing is None:
             result.created_documents.append(document)
+        result.accepted_candidates.append(self._with_entity_id(candidate, document))
         return document
+
+    @staticmethod
+    def _with_entity_id(candidate, entity):
+        from dataclasses import replace
+
+        metadata = dict(candidate.metadata)
+        metadata["entity_id"] = entity.id
+        return replace(candidate, metadata=metadata)
 
 
 def learning_day_summary(results, output=print):

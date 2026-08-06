@@ -3,6 +3,7 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
+from hashlib import sha256
 
 from src.models.event import Event
 
@@ -26,6 +27,23 @@ class WorkSession:
         repr=False,
     )
     _last_context: tuple | None = field(default=None, repr=False)
+
+    @property
+    def learning_id(self):
+        facts = [
+            self.start_time.isoformat(),
+            self.end_time.isoformat(),
+        ]
+        facts.extend(
+            "|".join((
+                event.start_time.isoformat(),
+                event.end_time.isoformat(),
+                event.application,
+                event.title,
+            ))
+            for event in self.events
+        )
+        return sha256("\n".join(facts).encode("utf-8")).hexdigest()
 
     @classmethod
     def from_event(cls, session_id: int, event: Event):

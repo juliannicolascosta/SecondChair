@@ -2,15 +2,15 @@
 
 ## Versión
 
-0.0.9 (en desarrollo)
+0.1.0 (en desarrollo)
 
 ## Estado
 
-Deterministic Learning Engine
+Persistencia segura del dominio
 
 ## Objetivo actual
 
-Incorporar conocimiento inequívoco desde WorkSession cerradas sin confundir observaciones con hechos confirmados.
+Conservar conocimiento, relaciones, evidencia y candidatos entre reinicios sin alterar el historial de eventos.
 
 ## Último avance
 
@@ -45,10 +45,19 @@ Incorporar conocimiento inequívoco desde WorkSession cerradas sin confundir obs
 - Protección contra aprendizaje repetido por ID de sesión
 - Resumen de aprendizaje del día
 - Suite ampliada de 35 pruebas
+- DomainRepository transaccional y completamente offline
+- Esquema de dominio v1 separado de events
+- Migración explícita 0→1 sin pérdida
+- UUID, claves canónicas, fechas y métricas persistentes
+- Candidatos pending, accepted y rejected
+- Evidencia de promociones con procedencia y confianza
+- Protección de reaprendizaje entre procesos
+- Recuperación de Workspace y relaciones al iniciar
+- Suite ampliada de 47 pruebas
 
 ## Próximo objetivo
 
-Diseñar confirmación humana para candidatos ambiguos y validar las reglas sobre datos controlados antes de persistir el dominio.
+Diseñar confirmación humana y cifrado local antes de ampliar la captura de conocimiento sensible.
 
 ## Estado general
 

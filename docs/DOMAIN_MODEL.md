@@ -154,9 +154,19 @@ Cada ejecución produce un LearningResult con entidades creadas, entidades actua
 
 ## Límites de v0.0.9
 
-- Sin persistencia.
+- Persistencia local mediante DomainRepository; no existe sincronización remota.
 - Integración limitada a WorkSession cerradas y LearningResult en memoria.
 - Sin integración con Assistant.
 - Sin resolución probabilística.
 - Sin fusiones o alias de entidades.
 - Sin validación humana integrada.
+
+## Persistencia v0.1.0
+
+Workspace sobrevive reinicios mediante UUID estables y claves canónicas normalizadas. Repository reconstruye entidades y relaciones bidireccionales sin invocar reglas de aprendizaje.
+
+Las entidades conservan `created_at`, `updated_at`, `first_seen`, `last_seen`, `total_sessions` y `total_time`. La clave de una WorkSession aprendida se deriva de sus tiempos y eventos, no del contador transitorio del proceso; esto impide acumular nuevamente tiempo al reprocesar exactamente la misma sesión.
+
+LearningCandidate persiste con estados `pending`, `accepted` o `rejected`. Las promociones automáticas se registran como `accepted` e incluyen el UUID de la entidad en metadata. Los candidatos `pending` nunca se promueven durante la carga.
+
+La unicidad inicial continúa dependiendo de `canonical_key`, basada principalmente en el nombre normalizado. En expedientes con nombres iguales esto puede producir colisiones; incorporar jurisdicción, número o cliente a la identidad requerirá datos contextuales más confiables.
