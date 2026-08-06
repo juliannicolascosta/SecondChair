@@ -113,10 +113,49 @@ Si una entidad ya existe, Resolver puede devolver la instancia conocida consulta
 
 Resolver nunca registra candidatos, modifica Workspace ni crea relaciones automáticamente. Esta separación evita convertir una inferencia observada en verdad del dominio sin una decisión explícita.
 
-## Límites de v0.0.8
+## LearningCandidate
+
+LearningCandidate representa una posible entidad detectada. Conserva:
+
+- tipo y nombre canónico;
+- fuente de la observación;
+- confianza entre 0 y 1;
+- metadatos y motivo;
+- necesidad de confirmación.
+
+Los candidatos ambiguos permanecen fuera de Workspace. Una futura interfaz permitirá confirmarlos, corregirlos o rechazarlos.
+
+## DomainLearner
+
+DomainLearner es la autoridad que decide qué candidatos pueden promoverse mediante reglas conservadoras. Consume WorkSession completas, utiliza Resolver sin mutarlo y delega toda creación a Registry.
+
+Actualmente puede promover:
+
+- expediente y cliente desde una carátula completa de Lex Doctor;
+- organización cuando la contraparte contiene una señal societaria u organizacional explícita;
+- documento cuando existe un nombre identificable.
+
+Las relaciones con expediente se crean solamente cuando éste fue resuelto inequívocamente. Cada sesión se aprende como máximo una vez durante la vida del proceso.
+
+## LearningResult
+
+Cada ejecución produce un LearningResult con entidades creadas, entidades actualizadas, candidatos pendientes y advertencias. WorkingMemory conserva estos resultados como auditoría de la jornada.
+
+## Principios de aprendizaje
+
+> Los eventos describen lo ocurrido. El Dominio describe la realidad conocida. Nunca deben confundirse.
+
+- Autonomía offline: aprender no requiere red ni servicios externos.
+- Determinismo primero: las mismas entradas producen las mismas decisiones.
+- Aprendizaje conservador: una confianza baja nunca crea conocimiento permanente.
+- Trazabilidad: toda inferencia conserva procedencia y motivo.
+- Confirmación humana futura: los candidatos ambiguos no se promueven automáticamente.
+- Orden evolutivo: reglas, heurísticas, estadística e IA.
+
+## Límites de v0.0.9
 
 - Sin persistencia.
-- Sin integración con Memory.
+- Integración limitada a WorkSession cerradas y LearningResult en memoria.
 - Sin integración con Assistant.
 - Sin resolución probabilística.
 - Sin fusiones o alias de entidades.

@@ -2,14 +2,21 @@
 
 from collections import deque
 
+from src.domain.learner import DomainLearner
 from src.memory.session_builder import SessionBuilder
 
 
 class WorkingMemory:
-    def __init__(self, max_events=100, session_builder=None):
+    def __init__(self, max_events=100, session_builder=None, domain_learner=None):
         self.events = deque(maxlen=max_events)
         self.session_builder = session_builder or SessionBuilder()
+        self.domain_learner = domain_learner or DomainLearner()
         self.sessions = []
+        self.learning_results = []
+
+    @property
+    def workspace(self):
+        return self.domain_learner.workspace
 
     @property
     def current_session(self):
@@ -20,7 +27,7 @@ class WorkingMemory:
         closed_session = self.session_builder.add_event(event)
 
         if closed_session is not None:
-            self.sessions.append(closed_session)
+            self._record_closed_session(closed_session)
 
     def last(self):
         if not self.events:
@@ -34,6 +41,11 @@ class WorkingMemory:
         closed_session = self.session_builder.finish()
 
         if closed_session is not None:
-            self.sessions.append(closed_session)
+            self._record_closed_session(closed_session)
 
         return closed_session
+
+    def _record_closed_session(self, session):
+        self.sessions.append(session)
+        result = self.domain_learner.learn_from_session(session)
+        self.learning_results.append(result)

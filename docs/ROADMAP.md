@@ -61,6 +61,23 @@
 
 ---
 
+## v0.0.9 — Deterministic Learning Engine
+- [x] LearningCandidate con fuente, confianza y motivo
+- [x] LearningResult auditable
+- [x] DomainLearner determinista
+- [x] Promoción de carátulas completas de Lex Doctor
+- [x] Promoción organizacional mediante marcadores explícitos
+- [x] Promoción de documentos identificables
+- [x] Relaciones Client–Case, Case–Organization y Case–Document
+- [x] Integración con sesiones cerradas de WorkingMemory
+- [x] Protección contra aprendizaje repetido
+- [x] Resumen diario de aprendizaje sin datos sensibles
+- [x] Funcionamiento completamente offline
+- [ ] Confirmación humana de candidatos ambiguos
+- [ ] Persistencia del Workspace
+
+---
+
 ## v0.1
 - [x] Memory inicial en proceso
 - [ ] Detección de clientes

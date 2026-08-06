@@ -2,15 +2,15 @@
 
 ## Versión
 
-0.0.8 (en desarrollo)
+0.0.9 (en desarrollo)
 
 ## Estado
 
-Domain Layer
+Deterministic Learning Engine
 
 ## Objetivo actual
 
-Construir el primer modelo explícito del mundo jurídico sin integrarlo todavía al flujo observado.
+Incorporar conocimiento inequívoco desde WorkSession cerradas sin confundir observaciones con hechos confirmados.
 
 ## Último avance
 
@@ -37,10 +37,18 @@ Construir el primer modelo explícito del mundo jurídico sin integrarlo todaví
 - DomainResolver no mutante
 - Separación documentada entre Observed World y Domain World
 - Suite ampliada de 25 pruebas
+- LearningCandidate y LearningResult auditables
+- DomainLearner offline con umbrales explícitos
+- Promoción conservadora de clientes, expedientes, organizaciones y documentos
+- Candidatos ambiguos pendientes de confirmación futura
+- Integración de sesiones cerradas con Workspace
+- Protección contra aprendizaje repetido por ID de sesión
+- Resumen de aprendizaje del día
+- Suite ampliada de 35 pruebas
 
 ## Próximo objetivo
 
-Diseñar un proceso explícito de validación y promoción de candidatos antes de integrar Domain con Memory.
+Diseñar confirmación humana para candidatos ambiguos y validar las reglas sobre datos controlados antes de persistir el dominio.
 
 ## Estado general
 

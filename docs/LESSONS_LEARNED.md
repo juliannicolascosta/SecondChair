@@ -51,3 +51,15 @@
 - La unicidad necesita normalización explícita; diferencias de mayúsculas o espacios no justifican entidades duplicadas.
 - Las relaciones bidireccionales deben ser idempotentes para evitar referencias repetidas.
 - El dominio debe poder evolucionar y probarse sin depender de captura, memoria, Analytics, SQLite o inteligencia artificial.
+
+---
+
+## v0.0.9
+
+- Los eventos describen lo ocurrido. El Dominio describe la realidad conocida. Nunca deben confundirse.
+- Resolver una entidad candidata no autoriza a incorporarla al Workspace.
+- Todo aprendizaje debe conservar procedencia, confianza y motivo para poder auditarse.
+- La ambigüedad entre persona y organización debe permanecer pendiente cuando no existe una señal determinista.
+- La idempotencia necesita proteger tanto sesiones repetidas como entidades ya conocidas.
+- Autonomía offline y determinismo primero reducen dependencias y hacen reproducibles las decisiones.
+- Los candidatos ambiguos requerirán confirmación humana antes de convertirse en conocimiento.

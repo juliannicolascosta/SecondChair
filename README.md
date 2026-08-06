@@ -6,7 +6,7 @@ Actualmente registra la actividad del usuario en Windows, identifica la aplicaci
 
 ## Estado actual
 
-Versión: v0.0.8 (en desarrollo)
+Versión: v0.0.9 (en desarrollo)
 
 Implementado:
 
@@ -28,6 +28,8 @@ Implementado:
 - Domain Layer inicial completamente en memoria
 - Registry de entidades jurídicas únicas
 - Resolver no mutante para contexto observado
+- Aprendizaje determinista y conservador desde WorkSession cerradas
+- Auditoría diaria de conocimiento creado y candidatos pendientes
 
 ## Estructura
 
@@ -65,7 +67,9 @@ src/
         reports.py
 
     domain/
+        candidates.py
         entities.py
+        learner.py
         registry.py
         resolver.py
         relations.py
@@ -104,6 +108,12 @@ Las sesiones se mantienen sólo en memoria y no se guardan en SQLite.
 El Observed World registra hechos mediante Event y WorkSession. El Domain World representa clientes, expedientes, organizaciones, personas y documentos estables dentro de un Workspace.
 
 En v0.0.8 ambos mundos permanecen desacoplados: DomainResolver produce candidatos sin modificar DomainRegistry. El dominio no se persiste ni participa todavía de Memory o Assistant. La especificación completa está en [docs/DOMAIN_MODEL.md](docs/DOMAIN_MODEL.md).
+
+Desde v0.0.9, WorkingMemory entrega las WorkSession terminadas a DomainLearner. El Learner promueve sólo conocimiento inequívoco y conserva las inferencias ambiguas como `LearningCandidate` pendientes. Workspace continúa exclusivamente en memoria.
+
+> Los eventos describen lo ocurrido. El Dominio describe la realidad conocida. Nunca deben confundirse.
+
+El aprendizaje funciona completamente offline y sigue el orden: reglas, heurísticas, estadística e IA. En este hito sólo se aplican reglas y heurísticas deterministas.
 
 ## Pruebas
 

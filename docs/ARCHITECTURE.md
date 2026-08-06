@@ -239,3 +239,44 @@ El Observed World registra evidencia. El Domain World representa entidades jurí
 DomainRegistry garantiza unicidad y es el único responsable de agregar entidades a Workspace. Relations mantiene referencias simples entre objetos, sin graph database.
 
 En v0.0.8 esta capa está aislada: no modifica Telemetry, Analytics, WorkingMemory ni SQLite. Consultar [DOMAIN_MODEL.md](DOMAIN_MODEL.md) para el modelo completo.
+
+---
+
+# Deterministic Learning Engine
+
+Principio central:
+
+> Los eventos describen lo ocurrido. El Dominio describe la realidad conocida. Nunca deben confundirse.
+
+El flujo de v0.0.9 es:
+
+```text
+Completed WorkSession
+        |
+        v
+ DomainResolver       interpreta sin mutar
+        |
+        v
+LearningCandidate     conserva fuente, confianza y motivo
+        |
+        v
+ DomainLearner        decide promover o dejar pendiente
+        |
+        v
+ DomainRegistry       garantiza unicidad
+        |
+        v
+    Workspace         conserva conocimiento durante el proceso
+```
+
+DomainLearner sólo recibe WorkSession cerradas. Conserva los IDs aprendidos para impedir procesamiento repetido y devuelve un LearningResult por sesión. WorkingMemory guarda esos resultados para auditoría diaria.
+
+Los umbrales de promoción son constantes centralizadas. Una carátula completa de Lex Doctor puede promover expediente y cliente. Una contraparte sólo se promueve como organización cuando presenta un marcador explícito. Los documentos necesitan un nombre identificable y sólo se relacionan con un expediente inequívoco.
+
+La arquitectura aplica este orden de capacidades:
+
+```text
+reglas -> heurísticas -> estadística -> IA
+```
+
+v0.0.9 utiliza solamente las dos primeras, de forma determinista y offline. No persiste Workspace, no crea tablas y no modifica Analytics.
