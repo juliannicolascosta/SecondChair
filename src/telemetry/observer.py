@@ -48,18 +48,26 @@ def observe(
     sleeper=time.sleep,
     poll_interval=1,
     max_iterations=None,
+    idle_tracker=None,
+    shutdown_signal=None,
 ):
 
     current_event = None
     iterations = 0
 
     try:
-        while max_iterations is None or iterations < max_iterations:
+        while (
+            (max_iterations is None or iterations < max_iterations)
+            and not (shutdown_signal is not None and shutdown_signal.is_set())
+        ):
 
             try:
                 iterations += 1
 
                 window = window_provider()
+
+                if idle_tracker is not None:
+                    idle_tracker.sample()
 
                 event = analyze_window(window)
 

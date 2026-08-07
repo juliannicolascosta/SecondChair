@@ -120,6 +120,15 @@ def initialize(database=DATABASE):
             )
         """)
 
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS daily_idle_metrics (
+                day TEXT PRIMARY KEY,
+                observed_seconds INTEGER NOT NULL DEFAULT 0,
+                active_seconds INTEGER NOT NULL DEFAULT 0,
+                inactive_seconds INTEGER NOT NULL DEFAULT 0
+            )
+        """)
+
         cursor.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
 
         conn.commit()
@@ -238,5 +247,28 @@ def save_session_interactions(session, database=DATABASE):
                 session.duration,
                 label,
                 *values,
+            ),
+        )
+
+
+def save_idle_metrics(day, tracker, database=DATABASE):
+    """Add one runtime's aggregate active/inactive totals to a day."""
+
+    with closing(connect(database)) as conn, conn:
+        conn.execute(
+            """
+            INSERT INTO daily_idle_metrics(
+                day, observed_seconds, active_seconds, inactive_seconds
+            ) VALUES(?,?,?,?)
+            ON CONFLICT(day) DO UPDATE SET
+                observed_seconds=observed_seconds + excluded.observed_seconds,
+                active_seconds=active_seconds + excluded.active_seconds,
+                inactive_seconds=inactive_seconds + excluded.inactive_seconds
+            """,
+            (
+                day.isoformat(),
+                tracker.observed_seconds,
+                tracker.active_seconds,
+                tracker.inactive_seconds,
             ),
         )

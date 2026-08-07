@@ -27,6 +27,10 @@ class UIAutomationInspector:
                 automation_module = None
         self.automation = automation_module
 
+    @property
+    def available(self):
+        return self.automation is not None
+
     def control_type_at_cursor(self):
         if self.automation is None:
             return None

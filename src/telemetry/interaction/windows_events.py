@@ -18,6 +18,12 @@ WM_MOUSEWHEEL = 0x020A
 WM_MOUSEHWHEEL = 0x020E
 WM_QUIT = 0x0012
 
+# ``wintypes.LPARAM`` was historically a 32-bit ``c_long`` on some Python
+# releases, even in 64-bit processes. Hook parameters are pointer-sized.
+HOOK_WPARAM = ctypes.c_size_t
+HOOK_LPARAM = ctypes.c_ssize_t
+HOOK_RESULT = ctypes.c_ssize_t
+
 
 class WindowsEventSource:
     """Emit only coarse action categories from a dedicated Windows message loop.
@@ -52,16 +58,14 @@ class WindowsEventSource:
 
     def _run(self):
         kernel32 = ctypes.windll.kernel32
-        self.user32.SetWindowsHookExW.restype = ctypes.c_void_p
-        self.user32.CallNextHookEx.restype = ctypes.c_ssize_t
-        kernel32.GetModuleHandleW.restype = ctypes.c_void_p
-        self._thread_id = kernel32.GetCurrentThreadId()
         callback_type = ctypes.WINFUNCTYPE(
-            ctypes.c_ssize_t,
+            HOOK_RESULT,
             ctypes.c_int,
-            wintypes.WPARAM,
-            wintypes.LPARAM,
+            HOOK_WPARAM,
+            HOOK_LPARAM,
         )
+        self._configure_native_signatures(kernel32, callback_type)
+        self._thread_id = kernel32.GetCurrentThreadId()
 
         def keyboard_callback(code, message, opaque_data):
             if code >= 0 and message in (WM_KEYDOWN, WM_SYSKEYDOWN):
@@ -97,3 +101,35 @@ class WindowsEventSource:
             if hook:
                 self.user32.UnhookWindowsHookEx(hook)
         self._hooks = []
+
+    def _configure_native_signatures(self, kernel32, callback_type):
+        """Declare pointer-sized Win32 signatures explicitly for Python 3.14+."""
+
+        kernel32.GetCurrentThreadId.argtypes = []
+        kernel32.GetCurrentThreadId.restype = wintypes.DWORD
+        kernel32.GetModuleHandleW.argtypes = [wintypes.LPCWSTR]
+        kernel32.GetModuleHandleW.restype = ctypes.c_void_p
+
+        self.user32.SetWindowsHookExW.argtypes = [
+            ctypes.c_int,
+            callback_type,
+            ctypes.c_void_p,
+            wintypes.DWORD,
+        ]
+        self.user32.SetWindowsHookExW.restype = ctypes.c_void_p
+        self.user32.CallNextHookEx.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_int,
+            HOOK_WPARAM,
+            HOOK_LPARAM,
+        ]
+        self.user32.CallNextHookEx.restype = HOOK_RESULT
+        self.user32.UnhookWindowsHookEx.argtypes = [ctypes.c_void_p]
+        self.user32.UnhookWindowsHookEx.restype = wintypes.BOOL
+        self.user32.PostThreadMessageW.argtypes = [
+            wintypes.DWORD,
+            wintypes.UINT,
+            HOOK_WPARAM,
+            HOOK_LPARAM,
+        ]
+        self.user32.PostThreadMessageW.restype = wintypes.BOOL

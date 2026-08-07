@@ -65,3 +65,19 @@ def interaction_sessions_for_date(day=None, database=DATABASE):
             (selected_day.isoformat(),),
         ).fetchall()
     return [dict(row) for row in rows]
+
+
+def idle_metrics_for_date(day=None, database=DATABASE):
+    selected_day = day or date.today()
+    database = Path(database)
+    with closing(sqlite3.connect(database)) as conn:
+        row = conn.execute(
+            """
+            SELECT observed_seconds, active_seconds, inactive_seconds
+            FROM daily_idle_metrics WHERE day = ?
+            """,
+            (selected_day.isoformat(),),
+        ).fetchone()
+    if row is None:
+        return {"observed_seconds": 0, "active_seconds": 0, "inactive_seconds": 0}
+    return dict(zip(("observed_seconds", "active_seconds", "inactive_seconds"), row))

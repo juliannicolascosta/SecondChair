@@ -20,6 +20,25 @@ import pygetwindow as gw
 PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
 
 
+class LASTINPUTINFO(ctypes.Structure):
+    _fields_ = [
+        ("cbSize", ctypes.c_uint),
+        ("dwTime", ctypes.c_uint),
+    ]
+
+
+def get_idle_seconds(user32=None, kernel32=None):
+    """Return elapsed seconds since input without reading which input occurred."""
+
+    user32 = user32 or ctypes.windll.user32
+    kernel32 = kernel32 or ctypes.windll.kernel32
+    info = LASTINPUTINFO(cbSize=ctypes.sizeof(LASTINPUTINFO))
+    if not user32.GetLastInputInfo(ctypes.byref(info)):
+        return 0
+    elapsed_ms = (kernel32.GetTickCount() - info.dwTime) & 0xFFFFFFFF
+    return elapsed_ms // 1000
+
+
 def _process_name(window):
     """Read only the executable name associated with a window handle."""
 

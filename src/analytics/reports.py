@@ -4,7 +4,11 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date
 
-from src.analytics.queries import events_for_date, interaction_sessions_for_date
+from src.analytics.queries import (
+    events_for_date,
+    idle_metrics_for_date,
+    interaction_sessions_for_date,
+)
 from src.storage.database import INTERACTION_COLUMNS
 from src.storage.database import DATABASE
 
@@ -120,6 +124,7 @@ def _print_group(title, values, output):
 
 def today_summary(database=DATABASE, output=print):
     summary = daily_summary(database=database)
+    idle = idle_metrics_for_date(database=database)
 
     output("")
     output("=" * 60)
@@ -127,7 +132,12 @@ def today_summary(database=DATABASE, output=print):
     output(f"Resumen diario — {summary.day.isoformat()}")
     output("=" * 60)
     output("")
-    output(f"Tiempo total: {seconds_to_text(summary.total_seconds)}")
+    output(
+        "Tiempo total de ventanas (incluye posibles pausas históricas): "
+        f"{seconds_to_text(summary.total_seconds)}"
+    )
+    output(f"Tiempo activo medido: {seconds_to_text(idle['active_seconds'])}")
+    output(f"Tiempo inactivo medido: {seconds_to_text(idle['inactive_seconds'])}")
     output(f"Cambios de contexto: {summary.context_changes}")
 
     _print_group("Aplicaciones", summary.by_application, output)

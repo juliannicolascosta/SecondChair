@@ -22,6 +22,15 @@ python -m src.main
 UI Automation es opcional: ante ausencia o error, el clic básico se conserva con
 `control_type=None`.
 
+SecondChair separa tiempo activo e inactivo usando el contador de última entrada
+de Windows, con un umbral predeterminado de cinco minutos. No inspecciona cuál fue
+la entrada. Si `Ctrl+C` no llega por el modo selección de la consola, se puede pedir
+un cierre limpio desde otra PowerShell:
+
+```powershell
+python -m src.stop
+```
+
 Second Chair es una plataforma de inteligencia operativa para estudios jurídicos.
 
 Actualmente registra la actividad del usuario en Windows, identifica la aplicación utilizada, extrae contexto básico y almacena eventos en una base SQLite.

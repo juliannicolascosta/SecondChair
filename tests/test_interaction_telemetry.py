@@ -1,3 +1,4 @@
+import ctypes
 import sqlite3
 import tempfile
 import unittest
@@ -13,6 +14,7 @@ from src.telemetry.interaction.collector import InteractionCollector
 from src.telemetry.interaction.counters import InteractionCounters
 from src.telemetry.interaction.models import InteractionEvent, InteractionType
 from src.telemetry.interaction.ui_automation import UIAutomationInspector
+from src.telemetry.interaction.windows_events import HOOK_LPARAM, WindowsEventSource
 
 
 NOW = datetime(2026, 8, 7, 10, 0, 0)
@@ -42,6 +44,19 @@ class ButtonAutomation:
         return type("Control", (), {"ControlTypeName": "ButtonControl"})()
 
 
+class FakeNativeFunction:
+    def __init__(self):
+        self.argtypes = None
+        self.restype = None
+
+
+class FakeNativeLibrary:
+    def __getattr__(self, name):
+        function = FakeNativeFunction()
+        setattr(self, name, function)
+        return function
+
+
 def completed_event(start=NOW, seconds=60):
     return Event(
         application="Word",
@@ -53,6 +68,22 @@ def completed_event(start=NOW, seconds=60):
 
 
 class InteractionTelemetryTests(unittest.TestCase):
+    def test_windows_hook_uses_pointer_sized_handles_on_python_314(self):
+        user32 = FakeNativeLibrary()
+        kernel32 = FakeNativeLibrary()
+        source = WindowsEventSource(user32=user32)
+        callback_type = ctypes.WINFUNCTYPE(
+            ctypes.c_ssize_t,
+            ctypes.c_int,
+            ctypes.c_size_t,
+            ctypes.c_ssize_t,
+        )
+
+        source._configure_native_signatures(kernel32, callback_type)
+
+        self.assertIs(user32.SetWindowsHookExW.argtypes[2], ctypes.c_void_p)
+        self.assertEqual(ctypes.sizeof(HOOK_LPARAM), ctypes.sizeof(ctypes.c_void_p))
+
     def test_counters(self):
         counters = InteractionCounters()
         for kind in (
