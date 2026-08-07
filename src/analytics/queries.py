@@ -19,6 +19,10 @@ EVENT_COLUMNS = (
     "case_name",
     "project",
     "document",
+    "activity_type",
+    "context_source",
+    "context_confidence",
+    "context_confirmed",
 )
 
 

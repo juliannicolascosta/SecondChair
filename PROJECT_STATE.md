@@ -14,6 +14,14 @@
   a una ventana confirmada de Lex Doctor y reconocimiento del proceso de ChatGPT.
 - Porcentajes de cobertura de aplicación/contexto y tiempo no asociado a
   WorkSessions para hacer explícitas las zonas todavía no medidas.
+- Extracción contextual conservadora de la parte en carátulas `S/`, sin ampliar
+  las reglas de promoción automática del DomainLearner.
+- Separación de actividad previa entre múltiples aplicaciones cuando aparece el
+  primer expediente explícito de una WorkSession.
+- Continuidad pasiva de cinco minutos desde Lex Doctor hacia Outlook y WhatsApp
+  Business, con procedencia, confianza y estado no confirmado persistidos.
+- DomainLearner exige evidencia Lex directa para promover expedientes y
+  contrapartes; una comunicación inferida sólo genera candidatos pendientes.
 - Exportación anónima offline con métricas agregadas, sin identidades, títulos,
   documentos, rutas, correos ni teléfonos.
 - Sin IA, OCR, screenshots, clipboard, texto escrito ni valores de campos.

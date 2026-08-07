@@ -45,7 +45,23 @@ class SessionBuilder:
         if session.case and event.case and session.case != event.case:
             return True
 
+        if self._first_anchor_follows_other_applications(session, event):
+            return True
+
         return self._context_changed_completely(session, event)
+
+    @staticmethod
+    def _first_anchor_follows_other_applications(session, event):
+        """Do not retroactively attach unrelated setup activity to a new matter."""
+
+        session_has_anchor = any((session.client, session.case, session.project))
+        event_has_anchor = any((event.client, event.case, event.project))
+        if session_has_anchor or not event_has_anchor:
+            return False
+        return any(
+            existing.application != event.application
+            for existing in session.events
+        )
 
     @staticmethod
     def _context_changed_completely(session, event):

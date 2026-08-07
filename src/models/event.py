@@ -38,4 +38,12 @@ class Event:
 
     document: str | None = None
 
+    activity_type: str | None = None
+
+    context_source: str | None = None
+
+    context_confidence: float | None = None
+
+    context_confirmed: bool = False
+
     context: dict = field(default_factory=dict)

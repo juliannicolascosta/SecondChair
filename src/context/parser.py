@@ -19,6 +19,8 @@ LEX_SECTIONS = (
     "Procesos", "Movimientos", "Agenda", "Facturas", "Edición de textos",
 )
 
+LEX_CASE_PARTY_SEPARATOR = re.compile(r"\s+(?:C/|S/)\s+", re.IGNORECASE)
+
 
 def parse_lex_title(title):
     """Extract structural Lex Doctor metadata already visible in the title."""
@@ -32,7 +34,7 @@ def parse_lex_title(title):
     if len(parts) == 2 and parts[1].strip():
         case_name = parts[1].strip()
         context["case"] = case_name
-        actor = re.split(r"\s+C/", case_name, maxsplit=1, flags=re.IGNORECASE)[0].strip()
+        actor = LEX_CASE_PARTY_SEPARATOR.split(case_name, maxsplit=1)[0].strip()
         if actor:
             context["client"] = actor
     return context

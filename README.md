@@ -52,6 +52,24 @@ reconocidos. Las ventanas auxiliares estructurales de Lex Doctor sólo se asocia
 cuando la ventana inmediatamente anterior ya fue atribuida a Lex Doctor; un
 título genérico aislado nunca basta.
 
+Las carátulas con `C/` y `S/` separan la parte observada antes del marcador para
+el contexto de cliente. Sólo el patrón bilateral completo con evidencia de Lex
+mantiene la promoción automática histórica; las sucesiones continúan como
+candidatos pendientes. Al aparecer el primer expediente de una tarea, una sesión
+previa sin contexto se separa si contenía otras aplicaciones, evitando atribuirle
+actividad anterior no relacionada.
+
+## Continuidad hacia comunicaciones
+
+Durante cinco minutos después de observar un expediente en Lex Doctor,
+SecondChair puede asociar provisionalmente una ventana de Outlook o WhatsApp
+Business con ese contexto. La inferencia se ejecuta en segundo plano, nunca pide
+confirmación durante la jornada y conserva `recent_lex_context`, confianza `0.60`
+y estado no confirmado. Clasifica estados visibles como redacción, respuesta,
+reenvío o ventana de comunicación, pero no afirma que un mensaje fue enviado.
+No lee cuerpo, destinatario, conversación ni texto escrito. Una asociación
+inferida sin evidencia Lex directa no puede promover entidades del dominio.
+
 SecondChair separa tiempo activo e inactivo usando el contador de última entrada
 de Windows, con un umbral predeterminado de cinco minutos. No inspecciona cuál fue
 la entrada. Si `Ctrl+C` no llega por el modo selección de la consola, se puede pedir

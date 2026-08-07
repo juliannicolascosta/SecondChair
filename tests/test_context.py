@@ -19,6 +19,20 @@ class ContextTests(unittest.TestCase):
         self.assertEqual(event.client, "Cliente")
         self.assertEqual(event.case, "Cliente C/ Demandado")
 
+    def test_succession_caption_extracts_party_without_confirming_case_shape(self):
+        event = Event(
+            application="Lex Doctor",
+            title="Procesos ~ Boasso, Gloria Beatriz S/ Sucesión ab intestato",
+        )
+
+        enrich(event)
+
+        self.assertEqual(event.client, "Boasso, Gloria Beatriz")
+        self.assertEqual(
+            event.case,
+            "Boasso, Gloria Beatriz S/ Sucesión ab intestato",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

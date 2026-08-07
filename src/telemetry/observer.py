@@ -18,6 +18,7 @@ import traceback
 from src.telemetry.windows import get_active_window
 from src.telemetry.analyzer import analyze_window
 from src.context.engine import enrich
+from src.context.continuity import ContextContinuity
 from src.storage.database import save_event_model
 
 
@@ -50,9 +51,11 @@ def observe(
     max_iterations=None,
     idle_tracker=None,
     shutdown_signal=None,
+    context_continuity=None,
 ):
 
     current_event = None
+    context_continuity = context_continuity or ContextContinuity()
     iterations = 0
 
     try:
@@ -81,6 +84,7 @@ def observe(
                     continue
 
                 event = enrich(event)
+                event = context_continuity.apply(event)
 
                 if current_event is None:
 

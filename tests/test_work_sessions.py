@@ -125,6 +125,35 @@ class SessionBuilderTests(unittest.TestCase):
         self.assertIsNotNone(closed)
         self.assertEqual(builder.current_session.client, "Client B")
 
+    def test_first_case_does_not_absorb_prior_unrelated_applications(self):
+        builder = SessionBuilder()
+        builder.add_event(completed_event(application="PowerShell"))
+        builder.add_event(completed_event(
+            application="Lex Doctor", start_offset=60, duration=10,
+        ))
+
+        closed = builder.add_event(completed_event(
+            application="Lex Doctor", start_offset=70,
+            client="Client A", case="Case A",
+        ))
+
+        self.assertIsNotNone(closed)
+        self.assertEqual(closed.applications_used, ["PowerShell", "Lex Doctor"])
+        self.assertEqual(builder.current_session.case, "Case A")
+        self.assertEqual(builder.current_session.events_count, 1)
+
+    def test_first_case_keeps_same_application_setup(self):
+        builder = SessionBuilder()
+        builder.add_event(completed_event(application="Lex Doctor"))
+
+        closed = builder.add_event(completed_event(
+            application="Lex Doctor", start_offset=60,
+            client="Client A", case="Case A",
+        ))
+
+        self.assertIsNone(closed)
+        self.assertEqual(builder.current_session.events_count, 2)
+
 
 class WorkingMemorySessionTests(unittest.TestCase):
 

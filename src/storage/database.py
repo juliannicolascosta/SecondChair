@@ -43,6 +43,10 @@ CONTEXT_COLUMNS = {
     "case_name": "TEXT",
     "project": "TEXT",
     "document": "TEXT",
+    "activity_type": "TEXT",
+    "context_source": "TEXT",
+    "context_confidence": "REAL",
+    "context_confirmed": "INTEGER NOT NULL DEFAULT 0",
 }
 
 
@@ -83,6 +87,14 @@ def initialize(database=DATABASE):
                 project TEXT,
 
                 document TEXT
+
+                , activity_type TEXT
+
+                , context_source TEXT
+
+                , context_confidence REAL
+
+                , context_confirmed INTEGER NOT NULL DEFAULT 0
 
             )
 
@@ -160,6 +172,10 @@ def save_event(
     case_name=None,
     project=None,
     document=None,
+    activity_type=None,
+    context_source=None,
+    context_confidence=None,
+    context_confirmed=False,
     database=DATABASE
 
 ):
@@ -185,9 +201,14 @@ def save_event(
                 project,
                 document
 
+                , activity_type
+                , context_source
+                , context_confidence
+                , context_confirmed
+
             )
 
-            VALUES(?,?,?,?,?,?,?,?,?,?)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 
             """,
 
@@ -203,6 +224,11 @@ def save_event(
                 case_name,
                 project,
                 document
+
+                , activity_type
+                , context_source
+                , context_confidence
+                , int(bool(context_confirmed))
 
             )
 
@@ -227,6 +253,10 @@ def save_event_model(event: Event, database=DATABASE):
         event.case or context.get("case"),
         event.project or context.get("project"),
         event.document or context.get("document"),
+        event.activity_type or context.get("activity_type"),
+        event.context_source or context.get("context_source"),
+        event.context_confidence,
+        event.context_confirmed,
         database=database,
     )
 

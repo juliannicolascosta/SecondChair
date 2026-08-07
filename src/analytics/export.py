@@ -25,6 +25,8 @@ class AnonymousDailyReport:
     unassociated_seconds: int
     recognized_application_percent: float
     contextualized_percent: float
+    communication_windows: int
+    inferred_communication_windows: int
     interaction_count: int
     mouse_clicks: int
     keyboard_actions: int
@@ -64,6 +66,8 @@ def anonymous_daily_report(day=None, database=DATABASE):
         contextualized_percent=percentage(
             activity.contextualized_seconds, activity.total_seconds
         ),
+        communication_windows=activity.communication_windows,
+        inferred_communication_windows=activity.inferred_communication_windows,
         interaction_count=totals["interaction_count"],
         mouse_clicks=totals["mouse_clicks"],
         keyboard_actions=totals["keyboard_actions"],
@@ -95,6 +99,11 @@ def render_anonymous_report(report, output=print):
     output(f"Tiempo no asociado a WorkSessions: {seconds_to_text(report.unassociated_seconds)}")
     output(f"Cobertura de aplicación reconocida: {report.recognized_application_percent:.1f}%")
     output(f"Cobertura de contexto reconocido: {report.contextualized_percent:.1f}%")
+    output(f"Ventanas de comunicación observadas: {report.communication_windows}")
+    output(
+        "Comunicaciones asociadas por continuidad: "
+        f"{report.inferred_communication_windows}"
+    )
     output(f"Interacciones: {report.interaction_count}")
     output(f"Clics: {report.mouse_clicks}")
     output(f"Actividad de teclado: {report.keyboard_actions}")

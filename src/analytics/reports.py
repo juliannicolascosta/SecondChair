@@ -29,6 +29,8 @@ class DailySummary:
     case_switches: int
     recognized_application_seconds: int
     contextualized_seconds: int
+    communication_windows: int
+    inferred_communication_windows: int
 
 
 @dataclass(frozen=True)
@@ -85,6 +87,8 @@ def build_daily_summary(rows, day):
     case_switches = 0
     recognized_application_seconds = 0
     contextualized_seconds = 0
+    communication_windows = 0
+    inferred_communication_windows = 0
 
     for row in rows:
         duration = max(0, int(row.get("duration") or 0))
@@ -102,6 +106,10 @@ def build_daily_summary(rows, day):
             recognized_application_seconds += duration
         if any((case_name, client, row.get("section"), row.get("project"), row.get("document"))):
             contextualized_seconds += duration
+        if row.get("activity_type"):
+            communication_windows += 1
+            if row.get("context_source") == "recent_lex_context":
+                inferred_communication_windows += 1
 
         if case_name:
             cases[case_name] += duration
@@ -144,6 +152,8 @@ def build_daily_summary(rows, day):
         case_switches=case_switches,
         recognized_application_seconds=recognized_application_seconds,
         contextualized_seconds=contextualized_seconds,
+        communication_windows=communication_windows,
+        inferred_communication_windows=inferred_communication_windows,
     )
 
 
@@ -201,6 +211,11 @@ def today_summary(database=DATABASE, output=print):
     output(
         "Cobertura de contexto reconocido: "
         f"{percentage(summary.contextualized_seconds, summary.total_seconds):.1f}%"
+    )
+    output(f"Ventanas de comunicación observadas: {summary.communication_windows}")
+    output(
+        "Comunicaciones asociadas por continuidad (no confirmadas): "
+        f"{summary.inferred_communication_windows}"
     )
 
     _print_group("Aplicaciones", summary.by_application, output)

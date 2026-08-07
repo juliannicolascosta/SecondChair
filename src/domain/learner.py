@@ -106,7 +106,10 @@ class DomainLearner:
             relate_client_case(client, case)
             self._mark_updated(result, client, case)
 
-        organization = self._learn_counterparty(caption, result)
+        organization = self._learn_counterparty(
+            caption if lex_case_event is not None else None,
+            result,
+        )
         if organization is not None and case is not None:
             relate_case_organization(case, organization)
             self._mark_updated(result, case, organization)
@@ -158,18 +161,22 @@ class DomainLearner:
             return None
 
         source = "lex_doctor_title" if lex_event is not None else "work_session_context"
-        confidence = HIGH_CONFIDENCE if caption else AMBIGUOUS_CONFIDENCE
+        deterministic = caption is not None and lex_event is not None
+        confidence = HIGH_CONFIDENCE if deterministic else AMBIGUOUS_CONFIDENCE
         candidate = LearningCandidate(
             entity_type="case",
             canonical_name=name.strip(),
             source=source,
             confidence=confidence,
-            metadata={"complete_caption": bool(caption)},
+            metadata={
+                "complete_caption": bool(caption),
+                "direct_lex_evidence": lex_event is not None,
+            },
             requires_confirmation=confidence < AUTO_PROMOTION_THRESHOLD,
             reason=(
-                "Complete case caption recognized"
-                if caption
-                else "Case context does not contain a complete caption"
+                "Complete case caption with direct Lex Doctor evidence recognized"
+                if deterministic
+                else "Case context lacks direct deterministic Lex Doctor evidence"
             ),
             status=(
                 "pending"

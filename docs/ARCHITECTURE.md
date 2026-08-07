@@ -61,6 +61,26 @@ la lista estructural permitida. Esta evidencia puede propagarse entre ventanas
 auxiliares consecutivas, pero se corta al entrar en cualquier otra aplicación.
 Los porcentajes de cobertura se ponderan por duración, no por cantidad de eventos.
 
+Cuando una sesión todavía no posee cliente, expediente ni proyecto y recibe su
+primer ancla explícita, SessionBuilder inicia una nueva WorkSession si la actividad
+acumulada contiene aplicaciones distintas de la aplicación que aportó el ancla.
+La preparación anterior realizada exclusivamente en esa misma aplicación se
+conserva. La regla es determinista y no interpreta productividad.
+
+## Continuidad contextual de comunicaciones
+
+`ContextContinuity` conserva en memoria el último cliente/expediente observado
+directamente en Lex Doctor durante un máximo de cinco minutos. Si aparece Outlook
+o WhatsApp Business dentro de ese intervalo, completa el contexto como inferencia
+no confirmada con confianza 0.60. No inspecciona mensajes ni controles y no
+interrumpe al usuario.
+
+La clasificación describe el estado observable de la ventana (`email_compose`,
+`email_reply`, `email_forward`, `email_window`, `messaging_window`); nunca registra
+un “envío” porque la ventana activa no aporta evidencia suficiente. La procedencia
+se persiste para auditoría. DomainLearner requiere una carátula completa y un
+evento Lex directo antes de promover expedientes o contrapartes.
+
 ## Filosofía
 
 Second Chair no es un software de automatización.
