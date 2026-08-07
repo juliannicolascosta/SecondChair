@@ -52,6 +52,7 @@ def observe(
     idle_tracker=None,
     shutdown_signal=None,
     context_continuity=None,
+    heartbeat=None,
 ):
 
     current_event = None
@@ -71,6 +72,9 @@ def observe(
 
                 if idle_tracker is not None:
                     idle_tracker.sample()
+
+                if heartbeat is not None:
+                    heartbeat()
 
                 event = analyze_window(
                     window,
@@ -118,6 +122,8 @@ def observe(
                 sleeper(2)
 
     finally:
+        if heartbeat is not None:
+            heartbeat()
         if current_event is not None and current_event.end_time is None:
             complete_event(current_event, clock(), event_sink)
             memory.register(current_event)

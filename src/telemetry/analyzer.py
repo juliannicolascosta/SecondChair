@@ -125,4 +125,5 @@ def analyze_window(window, previous_application=None):
     return Event(
         application=application,
         title=title,
+        process_name=(window.get("process_name") or window.get("application")),
     )

@@ -14,7 +14,10 @@ Obtener información de la ventana activa de Windows.
 import ctypes
 from pathlib import Path
 
-import pygetwindow as gw
+try:
+    import pygetwindow as gw
+except ImportError:  # Tests and non-Windows analytics remain importable.
+    gw = None
 
 
 PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
@@ -70,6 +73,9 @@ def _process_name(window):
 
 
 def get_active_window():
+
+    if gw is None:
+        raise RuntimeError("PyGetWindow is required for live Windows telemetry")
 
     window = gw.getActiveWindow()
 

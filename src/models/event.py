@@ -22,6 +22,8 @@ class Event:
 
     title: str
 
+    process_name: str | None = None
+
     start_time: datetime | None = None
 
     end_time: datetime | None = None

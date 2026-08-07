@@ -1,5 +1,18 @@
 # Estado del Proyecto
 
+## v0.1.3 — Workflow Trace
+
+- Delimitación manual de flujos con inicio, cierre y cancelación.
+- UUID estable y asociación persistente con `WorkSession` cerradas.
+- Agregación de aplicaciones, procesos, ventanas, cambios de contexto e interacciones.
+- Exportación anónima sin etiqueta, procesos ni identificadores internos.
+- Comparación descriptiva entre ejecuciones con la misma etiqueta.
+- Recorte temporal exacto de interacciones independiente de los límites de WorkSession.
+- Estado explícito `collecting`, `pending`, `session_aggregate` o `exact`.
+- Importación segura de analítica y pruebas aunque `PyGetWindow` no esté instalado.
+- Suite reproducible en Windows mediante GitHub Actions.
+- Sin IA, screenshots, clipboard, texto escrito ni valores de campos.
+
 ## v0.1.2 — Reliability & Calibration
 
 - UI Automation declara `available`, `partial` o `unavailable` y conserva una
@@ -37,11 +50,11 @@
 
 ## Versión
 
-0.1.2 (en desarrollo)
+0.1.3 (en desarrollo)
 
 ## Estado
 
-Confiabilidad y calibración de telemetría
+Workflow Trace y calibración con flujos reales
 
 ## Objetivo actual
 
@@ -93,7 +106,9 @@ producir agregados compartibles sin exponer contexto sensible.
 
 ## Próximo objetivo
 
-Diseñar confirmación humana y cifrado local antes de ampliar la captura de conocimiento sensible.
+Calibrar Workflow Trace con ejecuciones reales controladas. La confirmación humana
+y el cifrado local siguen siendo obligatorios antes de ampliar la captura de
+conocimiento sensible.
 
 ## Estado general
 

@@ -85,6 +85,19 @@ class ObserverTests(unittest.TestCase):
 
         self.assertEqual(len(persisted), 2)
 
+    def test_heartbeat_runs_during_observation_and_finalization(self):
+        beats = []
+        observe(
+            WorkingMemory(),
+            window_provider=lambda: {"title": "Inbox - Outlook"},
+            event_sink=lambda _event: None,
+            clock=Clock(),
+            sleeper=lambda _seconds: None,
+            max_iterations=1,
+            heartbeat=lambda: beats.append(True),
+        )
+        self.assertEqual(len(beats), 2)
+
 
 if __name__ == "__main__":
     unittest.main()

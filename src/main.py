@@ -4,8 +4,6 @@ Second Chair
 Archivo principal.
 """
 
-from functools import partial
-
 from datetime import date
 from src.storage.database import initialize, save_idle_metrics, save_session_interactions
 from src.memory.working_memory import WorkingMemory
@@ -24,6 +22,7 @@ from src.telemetry.windows import get_active_window
 from src.telemetry.windows import get_idle_seconds
 from src.telemetry.idle import IdleTimeTracker
 from src.telemetry.shutdown import WindowsShutdownSignal
+from src.workflows.repository import WorkflowTraceRepository
 
 
 def main():
@@ -48,11 +47,17 @@ def main():
     )
     idle_tracker = IdleTimeTracker(get_idle_seconds)
     shutdown_signal = WindowsShutdownSignal()
+    workflow_repository = WorkflowTraceRepository()
+
+    def persist_session(session):
+        save_session_interactions(session)
+        workflow_repository.attach_session(session)
+
     memory = WorkingMemory(
         domain_learner=learner,
         domain_repository=domain_repository,
         interaction_collector=interaction_collector,
-        interaction_sink=partial(save_session_interactions),
+        interaction_sink=persist_session,
     )
 
     print("Second Chair ha iniciado correctamente.")
@@ -69,6 +74,7 @@ def main():
             memory,
             idle_tracker=idle_tracker,
             shutdown_signal=shutdown_signal,
+            heartbeat=lambda: workflow_repository.finalize_pending(interaction_collector),
         )
 
     finally:
