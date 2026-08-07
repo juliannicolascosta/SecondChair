@@ -38,6 +38,7 @@ INTERACTION_COLUMNS = (
 )
 
 CONTEXT_COLUMNS = {
+    "process_name": "TEXT",
     "section": "TEXT",
     "client": "TEXT",
     "case_name": "TEXT",
@@ -155,6 +156,64 @@ def initialize(database=DATABASE):
             )
         """)
 
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS workflow_traces (
+                id TEXT PRIMARY KEY,
+                label TEXT NOT NULL,
+                start_time TEXT NOT NULL,
+                end_time TEXT,
+                status TEXT NOT NULL CHECK(status IN ('running','completed','cancelled')),
+                created_at TEXT NOT NULL
+            )
+        """)
+        cursor.execute("""
+            CREATE UNIQUE INDEX IF NOT EXISTS one_running_workflow_trace
+            ON workflow_traces(status) WHERE status = 'running'
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS workflow_trace_sessions (
+                trace_id TEXT NOT NULL REFERENCES workflow_traces(id) ON DELETE CASCADE,
+                session_key TEXT NOT NULL,
+                start_time TEXT NOT NULL,
+                end_time TEXT NOT NULL,
+                duration INTEGER NOT NULL,
+                applications TEXT NOT NULL,
+                processes TEXT NOT NULL,
+                window_count INTEGER NOT NULL,
+                context_switches INTEGER NOT NULL,
+                interaction_count INTEGER NOT NULL,
+                mouse_clicks INTEGER NOT NULL,
+                keyboard_actions INTEGER NOT NULL,
+                scroll_actions INTEGER NOT NULL,
+                text_fields_used INTEGER NOT NULL,
+                buttons_used INTEGER NOT NULL,
+                combo_boxes_used INTEGER NOT NULL,
+                menus_used INTEGER NOT NULL,
+                window_switches INTEGER NOT NULL,
+                control_metrics_status TEXT NOT NULL,
+                PRIMARY KEY(trace_id, session_key)
+            )
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS workflow_trace_intervals (
+                trace_id TEXT PRIMARY KEY REFERENCES workflow_traces(id) ON DELETE CASCADE,
+                applications TEXT NOT NULL,
+                processes TEXT NOT NULL,
+                interaction_count INTEGER NOT NULL,
+                mouse_clicks INTEGER NOT NULL,
+                keyboard_actions INTEGER NOT NULL,
+                scroll_actions INTEGER NOT NULL,
+                text_fields_used INTEGER NOT NULL,
+                buttons_used INTEGER NOT NULL,
+                combo_boxes_used INTEGER NOT NULL,
+                menus_used INTEGER NOT NULL,
+                window_switches INTEGER NOT NULL,
+                control_metrics_status TEXT NOT NULL,
+                control_metrics_reason TEXT,
+                finalized_at TEXT NOT NULL
+            )
+        """)
+
         cursor.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
 
         conn.commit()
@@ -167,6 +226,7 @@ def save_event(
     duration,
     application,
     title,
+    process_name=None,
     section=None,
     client=None,
     case_name=None,
@@ -195,6 +255,7 @@ def save_event(
                 duration,
                 application,
                 title,
+                process_name,
                 section,
                 client,
                 case_name,
@@ -208,7 +269,7 @@ def save_event(
 
             )
 
-            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 
             """,
 
@@ -219,6 +280,7 @@ def save_event(
                 duration,
                 application,
                 title,
+                process_name,
                 section,
                 client,
                 case_name,
@@ -248,6 +310,7 @@ def save_event_model(event: Event, database=DATABASE):
         event.duration,
         event.application,
         event.title,
+        event.process_name,
         event.section or context.get("section"),
         event.client or context.get("client"),
         event.case or context.get("case"),

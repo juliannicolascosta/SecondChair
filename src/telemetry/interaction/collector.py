@@ -94,21 +94,26 @@ class InteractionCollector:
 
     def attach_to_session(self, session):
         """Aggregate ephemeral events whose timestamps fall inside a closed session."""
+        result = self.aggregate_between(session.start_time, session.end_time)
+        aggregate = result["counters"]
+        session.apply_interaction_counters(aggregate)
+        session.control_metrics_status = result["control_metrics_status"]
+        session.control_metrics_reason = result["control_metrics_reason"]
+        return aggregate
 
+    def aggregate_between(self, start_time, end_time):
+        """Aggregate a time slice without persisting or consuming ephemeral detail."""
         aggregate = InteractionCounters()
         with self._lock:
-            matched = []
-            retained = deque(maxlen=self.events.maxlen)
-            for event in self.events:
-                if session.start_time <= event.timestamp <= session.end_time:
-                    matched.append(event)
-                else:
-                    retained.append(event)
-            self.events = retained
-
+            matched = [
+                event for event in self.events
+                if start_time <= event.timestamp <= end_time
+            ]
         previous_window = None
         click_statuses = []
         reasons = []
+        applications = []
+        processes = []
         for event in matched:
             physical_click = event.interaction_type not in {
                 InteractionType.KEYBOARD_ACTIVITY,
@@ -124,22 +129,29 @@ class InteractionCollector:
                 aggregate.add_window_switch()
             if any(window_key):
                 previous_window = window_key
-        session.apply_interaction_counters(aggregate)
+            if event.application and event.application not in applications:
+                applications.append(event.application)
+            if event.process_name and event.process_name not in processes:
+                processes.append(event.process_name)
         if self.ui_inspector is None or not self.ui_inspector.available:
-            session.control_metrics_status = "unavailable"
-            session.control_metrics_reason = (
+            status = "unavailable"
+            reason = (
                 getattr(self.ui_inspector, "reason", None) or "not_configured"
             )
         elif click_statuses and all(status == "available" for status in click_statuses):
-            session.control_metrics_status = "available"
-            session.control_metrics_reason = None
+            status, reason = "available", None
         elif "available" in click_statuses:
-            session.control_metrics_status = "partial"
-            session.control_metrics_reason = reasons[0] if reasons else "classification_partial"
+            status = "partial"
+            reason = reasons[0] if reasons else "classification_partial"
         elif click_statuses:
-            session.control_metrics_status = "unavailable"
-            session.control_metrics_reason = reasons[0] if reasons else "classification_failed"
+            status = "unavailable"
+            reason = reasons[0] if reasons else "classification_failed"
         else:
-            session.control_metrics_status = "available"
-            session.control_metrics_reason = None
-        return aggregate
+            status, reason = "available", None
+        return {
+            "counters": aggregate,
+            "applications": applications,
+            "processes": processes,
+            "control_metrics_status": status,
+            "control_metrics_reason": reason,
+        }

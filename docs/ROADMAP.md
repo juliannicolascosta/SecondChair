@@ -1,5 +1,18 @@
 # Roadmap
 
+## v0.1.3 — Workflow Trace & Real-World Calibration
+
+- [x] Modelo agregado y persistente `WorkflowTrace`
+- [x] Inicio, cierre y cancelación manual
+- [x] Asociación automática de `WorkSession` cerradas
+- [x] Aplicaciones y procesos usados sin copiar títulos
+- [x] Exportación anónima y comparación descriptiva
+- [x] Pruebas de privacidad, estados y persistencia
+- [x] Suite Windows en CI y dependencias mínimas de runtime
+- [x] Recorte exacto cuando una traza comienza dentro de una WorkSession
+- [x] Finalización asíncrona de trazas cerradas desde la CLI
+- [ ] Validación controlada en Lex Doctor, Word, Edge, Outlook y Explorador
+
 ## v0.1.2 — Reliability & Calibration
 
 - [x] Estado y diagnóstico explícitos de UI Automation

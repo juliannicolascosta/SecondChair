@@ -1,0 +1,3 @@
+PyGetWindow==0.0.9
+# Optional at runtime: without it, basic interaction telemetry remains active.
+uiautomation>=2.0.20; platform_system == "Windows"

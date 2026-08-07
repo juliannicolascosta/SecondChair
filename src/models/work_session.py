@@ -19,6 +19,7 @@ class WorkSession:
     project: str | None = None
     primary_application: str | None = None
     applications_used: list[str] = field(default_factory=list)
+    processes_used: list[str] = field(default_factory=list)
     context_switches: int = 0
     events_count: int = 0
     interaction_count: int = 0
@@ -93,6 +94,9 @@ class WorkSession:
 
         if event.application not in self.applications_used:
             self.applications_used.append(event.application)
+
+        if event.process_name and event.process_name not in self.processes_used:
+            self.processes_used.append(event.process_name)
 
         self._application_seconds[event.application] += max(0, event.duration)
         self.primary_application = max(
