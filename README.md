@@ -1,5 +1,27 @@
 # Second Chair
 
+> **SecondChair mide interacciones, no contenido.**
+
+## Interaction Telemetry (v0.1.1)
+
+SecondChair mide fricción operativa mediante clics, actividad agregada de teclado,
+scroll, cambios de ventana y tipos de control. Nunca conserva teclas, texto escrito,
+valores de campos, contraseñas, portapapeles, capturas ni coordenadas. Los eventos
+detallados son efímeros y acotados en memoria; SQLite sólo recibe contadores
+agregados por `WorkSession`.
+
+Un clic clasificado como botón, campo, combo o menú es una interacción: incrementa
+`mouse_clicks` y el contador del control, pero `interaction_count` sólo una vez.
+`window_switches` no incrementa el total. Una interacción nunca crea una
+`WorkSession`; se asocia por timestamp cuando una sesión existente se cierra.
+
+```powershell
+python -m src.main
+```
+
+UI Automation es opcional: ante ausencia o error, el clic básico se conserva con
+`control_type=None`.
+
 Second Chair es una plataforma de inteligencia operativa para estudios jurídicos.
 
 Actualmente registra la actividad del usuario en Windows, identifica la aplicación utilizada, extrae contexto básico y almacena eventos en una base SQLite.

@@ -21,6 +21,15 @@ class WorkSession:
     applications_used: list[str] = field(default_factory=list)
     context_switches: int = 0
     events_count: int = 0
+    interaction_count: int = 0
+    mouse_clicks: int = 0
+    keyboard_actions: int = 0
+    scroll_actions: int = 0
+    text_fields_used: int = 0
+    buttons_used: int = 0
+    combo_boxes_used: int = 0
+    menus_used: int = 0
+    window_switches: int = 0
     events: list[Event] = field(default_factory=list, repr=False)
     _application_seconds: dict[str, int] = field(
         default_factory=lambda: defaultdict(int),
@@ -89,3 +98,19 @@ class WorkSession:
             key=self._application_seconds.get,
         )
         self._last_context = context
+
+    def apply_interaction_counters(self, counters):
+        """Attach aggregate, content-free telemetry without changing session identity."""
+
+        for name in (
+            "interaction_count",
+            "mouse_clicks",
+            "keyboard_actions",
+            "scroll_actions",
+            "text_fields_used",
+            "buttons_used",
+            "combo_boxes_used",
+            "menus_used",
+            "window_switches",
+        ):
+            setattr(self, name, getattr(counters, name, 0))

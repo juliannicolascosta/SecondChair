@@ -1,6 +1,33 @@
 # Second Chair
 ## Arquitectura del sistema
 
+## WindowTelemetry e InteractionTelemetry
+
+WindowTelemetry (`observer.py`) mide permanencia y transiciones de contexto y
+produce `Event`. InteractionTelemetry (`telemetry/interaction`) es una capa
+separada, basada en eventos, que mide acciones físicas y tipos de control. Al cerrar
+una WorkSession, los eventos efímeros comprendidos entre inicio y fin se reducen a
+contadores y se descartan.
+
+```text
+Windows hooks -> InteractionCollector -> detalle efímero acotado
+                                           |
+WorkSession cerrada ------------------------+
+                                           v
+                             contadores agregados -> SQLite -> reporte
+```
+
+Un clic identificado como botón incrementa `mouse_clicks`, `buttons_used` e
+`interaction_count=1`. Teclado y scroll suman una interacción por callback. Los
+cambios de ventana son una métrica separada. Una interacción no crea sesiones.
+
+El callback de teclado no desreferencia datos nativos: sólo emite actividad. El de
+mouse tampoco lee ni persiste coordenadas o deltas. UI Automation consulta sólo
+`ControlTypeName`, nunca nombres, ValuePattern o contenido, y cualquier fallo
+degrada a captura básica.
+
+**SecondChair mide interacciones, no contenido.**
+
 ## Filosofía
 
 Second Chair no es un software de automatización.

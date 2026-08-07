@@ -47,3 +47,21 @@ def events_today(database=DATABASE):
     """Backward-compatible alias for callers that need today's events."""
 
     return events_for_date(database=database)
+
+
+def interaction_sessions_for_date(day=None, database=DATABASE):
+    """Return aggregate facts only; detailed interactions are intentionally absent."""
+
+    selected_day = day or date.today()
+    database = Path(database)
+    with closing(sqlite3.connect(database)) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """
+            SELECT * FROM work_session_interactions
+            WHERE day = ?
+            ORDER BY start_time, session_id
+            """,
+            (selected_day.isoformat(),),
+        ).fetchall()
+    return [dict(row) for row in rows]

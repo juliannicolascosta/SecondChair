@@ -1,5 +1,16 @@
 # Lessons Learned
 
+## Telemetría de interacción
+
+- Una acción física y su clasificación UI son dimensiones del mismo hecho, no dos
+  interacciones; separarlas en contadores evita sobrecontar.
+- Asociar por intervalo al cerrar WorkSession mide fricción sin convertir cada
+  clic en una tarea falsa.
+- La clasificación UI es enriquecimiento opcional y debe fallar hacia el contador
+  básico, nunca detener Telemetry.
+- Persistir agregados basta para comparar flujos y reduce volumen y riesgo.
+- **SecondChair mide interacciones, no contenido.**
+
 ## v0.0.1
 
 - Es preferible construir una base pequeña pero estable antes que muchas funciones incompletas.

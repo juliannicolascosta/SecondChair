@@ -1,5 +1,14 @@
 # Estado del Proyecto
 
+## v0.1.1 — Interaction Telemetry
+
+- Captura no bloqueante de clic, actividad agregada de teclado y scroll.
+- Clasificación best-effort de controles mediante UI Automation, con fallback.
+- Detalle efímero; persistencia agregada por WorkSession/jornada.
+- Reporte `FRICCIÓN DEL DÍA` y ranking descriptivo de sesiones.
+- Sin IA, screenshots, clipboard, texto, teclas, valores ni contraseñas.
+- **SecondChair mide interacciones, no contenido.**
+
 ## Versión
 
 0.1.0 (en desarrollo)

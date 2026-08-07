@@ -1,5 +1,15 @@
 # Roadmap
 
+## v0.1.1 — Interaction Telemetry
+
+- [x] Clics, actividad agregada de teclado y scroll basados en eventos
+- [x] Clasificación opcional de controles Windows y fallback seguro
+- [x] Asociación temporal con WorkSession sin crear sesiones artificiales
+- [x] Persistencia agregada y reporte diario de fricción
+- [x] Privacidad por diseño: **SecondChair mide interacciones, no contenido.**
+- [ ] Comparación formal entre flujo actual y flujo futuro
+- [ ] Validación de cobertura UI Automation por aplicación
+
 ## v0.0.2
 - [x] Captura de ventana activa
 - [x] Persistencia SQLite

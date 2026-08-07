@@ -14,14 +14,19 @@ class WorkingMemory:
         session_builder=None,
         domain_learner=None,
         domain_repository=None,
+        interaction_collector=None,
+        interaction_sink=None,
     ):
         self.events = deque(maxlen=max_events)
         self.session_builder = session_builder or SessionBuilder()
         self.domain_learner = domain_learner or DomainLearner()
         self.domain_repository = domain_repository
+        self.interaction_collector = interaction_collector
+        self.interaction_sink = interaction_sink
         self.sessions = []
         self.learning_results = []
         self.pending_persistence = []
+        self.interaction_errors = []
 
     @property
     def workspace(self):
@@ -57,6 +62,15 @@ class WorkingMemory:
         return closed_session
 
     def _record_closed_session(self, session):
+        try:
+            if self.interaction_collector is not None:
+                self.interaction_collector.attach_to_session(session)
+            if self.interaction_sink is not None:
+                self.interaction_sink(session)
+        except Exception as error:
+            self.interaction_errors.append(type(error).__name__)
+            print("\nERROR EN TELEMETRÍA DE INTERACCIÓN")
+            traceback.print_exc()
         self.sessions.append(session)
         result = self.domain_learner.learn_from_session(session)
         self.learning_results.append(result)

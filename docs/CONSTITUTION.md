@@ -1,5 +1,16 @@
 # Constitución de Second Chair
 
+## Privacidad de interacción
+
+**SecondChair mide interacciones, no contenido.**
+
+La implementación no registrará teclas individuales, texto escrito, valores o
+nombres sensibles de controles, contraseñas, portapapeles, screenshots,
+coordenadas persistentes ni datos biométricos. El detalle será efímero y la
+persistencia se limitará a contadores agregados necesarios para medir y comparar
+fricción. Ningún fallo de UI Automation justificará ampliar la captura ni
+interrumpir SecondChair.
+
 ## Misión
 
 Ayudar a los estudios jurídicos a trabajar mejor comprendiendo cómo trabajan.

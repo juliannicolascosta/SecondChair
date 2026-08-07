@@ -22,7 +22,20 @@ DATA_FOLDER = Path("data")
 DATABASE = DATA_FOLDER / "secondchair.db"
 
 
+# Additive tables remain compatible with the existing v1 event schema.
 SCHEMA_VERSION = 1
+
+INTERACTION_COLUMNS = (
+    "interaction_count",
+    "mouse_clicks",
+    "keyboard_actions",
+    "scroll_actions",
+    "text_fields_used",
+    "buttons_used",
+    "combo_boxes_used",
+    "menus_used",
+    "window_switches",
+)
 
 CONTEXT_COLUMNS = {
     "section": "TEXT",
@@ -85,6 +98,27 @@ def initialize(database=DATABASE):
                 cursor.execute(
                     f"ALTER TABLE events ADD COLUMN {column} {column_type}"
                 )
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS work_session_interactions (
+                session_key TEXT PRIMARY KEY,
+                session_id INTEGER,
+                day TEXT NOT NULL,
+                start_time TEXT NOT NULL,
+                end_time TEXT NOT NULL,
+                duration INTEGER NOT NULL,
+                label TEXT,
+                interaction_count INTEGER NOT NULL DEFAULT 0,
+                mouse_clicks INTEGER NOT NULL DEFAULT 0,
+                keyboard_actions INTEGER NOT NULL DEFAULT 0,
+                scroll_actions INTEGER NOT NULL DEFAULT 0,
+                text_fields_used INTEGER NOT NULL DEFAULT 0,
+                buttons_used INTEGER NOT NULL DEFAULT 0,
+                combo_boxes_used INTEGER NOT NULL DEFAULT 0,
+                menus_used INTEGER NOT NULL DEFAULT 0,
+                window_switches INTEGER NOT NULL DEFAULT 0
+            )
+        """)
 
         cursor.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
 
@@ -172,3 +206,37 @@ def save_event_model(event: Event, database=DATABASE):
         event.document or context.get("document"),
         database=database,
     )
+
+
+def save_session_interactions(session, database=DATABASE):
+    """Persist only aggregate interaction counters for a closed WorkSession."""
+
+    label = (
+        session.case
+        or session.client
+        or session.project
+        or session.primary_application
+        or "Sin contexto"
+    )
+    values = [getattr(session, name, 0) for name in INTERACTION_COLUMNS]
+    with closing(connect(database)) as conn, conn:
+        conn.execute(
+            f"""
+            INSERT INTO work_session_interactions (
+                session_key, session_id, day, start_time, end_time,
+                duration, label, {', '.join(INTERACTION_COLUMNS)}
+            ) VALUES ({', '.join('?' for _ in range(7 + len(INTERACTION_COLUMNS)))})
+            ON CONFLICT(session_key) DO UPDATE SET
+                {', '.join(f'{name}=excluded.{name}' for name in INTERACTION_COLUMNS)}
+            """,
+            (
+                session.learning_id,
+                session.id,
+                session.start_time.date().isoformat(),
+                session.start_time.isoformat(),
+                session.end_time.isoformat(),
+                session.duration,
+                label,
+                *values,
+            ),
+        )
