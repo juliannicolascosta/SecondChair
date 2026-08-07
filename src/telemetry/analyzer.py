@@ -28,16 +28,49 @@ PROCESS_APPLICATIONS = {
     "code": "VS Code",
     "xolidosign": "XolidoSign",
     "lexdoctor": "Lex Doctor",
+    "chatgpt": "ChatGPT",
+    "chatgptdesktop": "ChatGPT",
 }
+
+BROWSER_CATEGORIES = (
+    (("whatsapp business",), "WhatsApp Business"),
+    (("autoconsulta web", "sisfe"), "SISFE / Autoconsulta Web"),
+    (("arca", "agencia de recaudación", "clave fiscal"), "ARCA"),
+    (("superintendencia de riesgos", "eservicios", "srt"), "SRT"),
+    (("chatgpt",), "ChatGPT"),
+)
+
+LEX_AUXILIARY_TITLES = (
+    "agenda", "procesos", "movimientos", "facturas", "edición de textos",
+)
 
 
 def _application_from_process(window):
     process = (window.get("process_name") or window.get("application") or "")
     normalized = process.lower().removesuffix(".exe")
+    if "lex" in normalized and "doctor" in normalized:
+        return "Lex Doctor"
     return PROCESS_APPLICATIONS.get(normalized)
 
 
-def analyze_window(window):
+def _browser_category(application, title_lower):
+    if application not in {"Edge", "Chrome"}:
+        return application
+    for patterns, category in BROWSER_CATEGORIES:
+        if any(pattern in title_lower for pattern in patterns):
+            return category
+    return application
+
+
+def _is_lex_auxiliary_title(title_lower):
+    return any(
+        title_lower == label or title_lower.startswith(f"{label} ~")
+        or title_lower.startswith(f"{label} -")
+        for label in LEX_AUXILIARY_TITLES
+    )
+
+
+def analyze_window(window, previous_application=None):
 
     if window is None:
         return None
@@ -76,6 +109,18 @@ def analyze_window(window):
 
     elif "windows powershell" in title_lower:
         application = "PowerShell"
+
+    elif title_lower == "chatgpt":
+        application = "ChatGPT"
+
+    if (
+        application == "Desconocida"
+        and previous_application == "Lex Doctor"
+        and _is_lex_auxiliary_title(title_lower)
+    ):
+        application = "Lex Doctor"
+
+    application = _browser_category(application, title_lower)
 
     return Event(
         application=application,

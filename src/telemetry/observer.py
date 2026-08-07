@@ -69,7 +69,12 @@ def observe(
                 if idle_tracker is not None:
                     idle_tracker.sample()
 
-                event = analyze_window(window)
+                event = analyze_window(
+                    window,
+                    previous_application=(
+                        current_event.application if current_event is not None else None
+                    ),
+                )
 
                 if event is None:
                     sleeper(poll_interval)

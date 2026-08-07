@@ -26,6 +26,8 @@ class InteractionEvent:
     process_name: str | None = None
     window_title: str | None = None
     control_type: str | None = None
+    control_metrics_status: str = "unavailable"
+    control_metrics_reason: str | None = None
     session_id: int | None = None
 
     def __post_init__(self):

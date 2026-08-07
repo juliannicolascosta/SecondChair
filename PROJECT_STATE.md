@@ -1,5 +1,23 @@
 # Estado del Proyecto
 
+## v0.1.2 — Reliability & Calibration
+
+- UI Automation declara `available`, `partial` o `unavailable` y conserva una
+  causa diagnóstica; una métrica no observada nunca se informa como cero.
+- Las transiciones de ventana, aplicación, contexto significativo y expediente
+  se calculan y presentan por separado.
+- Reconocimiento por metadatos de aplicaciones y servicios prioritarios, con el
+  proceso como señal principal y el título como fallback controlado.
+- Secciones estructurales de Lex Doctor reconocidas sin atribuir una ventana
+  genérica como `Procesos` a Lex Doctor sin evidencia adicional.
+- Continuidad conservadora para ventanas auxiliares inmediatamente posteriores
+  a una ventana confirmada de Lex Doctor y reconocimiento del proceso de ChatGPT.
+- Porcentajes de cobertura de aplicación/contexto y tiempo no asociado a
+  WorkSessions para hacer explícitas las zonas todavía no medidas.
+- Exportación anónima offline con métricas agregadas, sin identidades, títulos,
+  documentos, rutas, correos ni teléfonos.
+- Sin IA, OCR, screenshots, clipboard, texto escrito ni valores de campos.
+
 ## v0.1.1 — Interaction Telemetry
 
 - Captura no bloqueante de clic, actividad agregada de teclado y scroll.
@@ -11,15 +29,16 @@
 
 ## Versión
 
-0.1.0 (en desarrollo)
+0.1.2 (en desarrollo)
 
 ## Estado
 
-Persistencia segura del dominio
+Confiabilidad y calibración de telemetría
 
 ## Objetivo actual
 
-Conservar conocimiento, relaciones, evidencia y candidatos entre reinicios sin alterar el historial de eventos.
+Medir de forma verificable, distinguir ausencia de medición de un cero real y
+producir agregados compartibles sin exponer contexto sensible.
 
 ## Último avance
 

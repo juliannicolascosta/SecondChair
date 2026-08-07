@@ -2,7 +2,7 @@
 
 > **SecondChair mide interacciones, no contenido.**
 
-## Interaction Telemetry (v0.1.1)
+## Telemetría confiable (v0.1.2)
 
 SecondChair mide fricción operativa mediante clics, actividad agregada de teclado,
 scroll, cambios de ventana y tipos de control. Nunca conserva teclas, texto escrito,
@@ -19,8 +19,38 @@ Un clic clasificado como botón, campo, combo o menú es una interacción: incre
 python -m src.main
 ```
 
-UI Automation es opcional: ante ausencia o error, el clic básico se conserva con
-`control_type=None`.
+UI Automation es opcional: ante ausencia o error, el clic básico se conserva y
+el reporte marca las métricas de controles como `no disponible`, junto con una
+causa técnica. Un cero sólo significa cero cuando la clasificación estuvo
+disponible.
+
+Las métricas de transición tienen definiciones independientes:
+
+- cambio de ventana: cambia la pareja aplicación/ventana activa entre eventos;
+- cambio de aplicación: cambia la aplicación normalizada;
+- cambio de contexto significativo: cambia aplicación, cliente, expediente,
+  sección, proyecto o documento;
+- cambio de expediente: cambia entre dos expedientes identificados.
+
+Una `WorkSession` es una agrupación derivada de eventos que intenta representar
+una tarea intelectual; no equivale a una ventana ni a una aplicación.
+
+Para compartir métricas sin títulos, identidades, expedientes, documentos,
+rutas, correos ni teléfonos:
+
+```powershell
+python -m src.export_report
+python -m src.export_report --json
+```
+
+El informe normal sigue siendo local y puede mostrar contexto jurídico. El
+informe exportable contiene únicamente métricas agregadas y categorías de
+aplicación.
+
+La cobertura informa qué porcentaje del tiempo tiene aplicación y contexto
+reconocidos. Las ventanas auxiliares estructurales de Lex Doctor sólo se asocian
+cuando la ventana inmediatamente anterior ya fue atribuida a Lex Doctor; un
+título genérico aislado nunca basta.
 
 SecondChair separa tiempo activo e inactivo usando el contador de última entrada
 de Windows, con un umbral predeterminado de cinco minutos. No inspecciona cuál fue
@@ -37,7 +67,7 @@ Actualmente registra la actividad del usuario en Windows, identifica la aplicaci
 
 ## Estado actual
 
-Versión: v0.1.0 (en desarrollo)
+Versión: v0.1.2 (en desarrollo)
 
 Implementado:
 

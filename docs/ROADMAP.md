@@ -1,5 +1,20 @@
 # Roadmap
 
+## v0.1.2 — Reliability & Calibration
+
+- [x] Estado y diagnóstico explícitos de UI Automation
+- [x] Diferenciar métricas no disponibles de ceros reales
+- [x] Definiciones separadas de ventana, aplicación, contexto y expediente
+- [x] Atribución por proceso y fallback controlado para aplicaciones prioritarias
+- [x] Reconocimiento estructural conservador de Lex Doctor
+- [x] Continuidad inmediata para ventanas auxiliares de Lex Doctor
+- [x] Reconocimiento de ChatGPT como proceso independiente
+- [x] Cobertura temporal de aplicación/contexto y tiempo fuera de WorkSessions
+- [x] Reporte anónimo offline exclusivamente agregado
+- [x] Pruebas sintéticas y bases SQLite temporales
+- [ ] Validar cobertura real de UI Automation en cada aplicación y versión de Windows
+- [ ] Calibrar heurísticas de títulos con muestras controladas adicionales
+
 ## v0.1.1 — Interaction Telemetry
 
 - [x] Clics, actividad agregada de teclado y scroll basados en eventos

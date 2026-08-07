@@ -28,6 +28,39 @@ degrada a captura básica.
 
 **SecondChair mide interacciones, no contenido.**
 
+## Contrato de métricas v0.1.2
+
+- **Interacción:** una acción física observada (clic, callback agregado de
+  teclado o scroll). Clasificar un clic como control no crea otra interacción.
+- **Cambio de ventana:** transición de la pareja aplicación/título entre dos
+  eventos consecutivos de WindowTelemetry. No depende de que exista un clic.
+- **Cambio de aplicación:** transición entre aplicaciones normalizadas
+  consecutivas.
+- **Cambio de contexto significativo:** transición del conjunto aplicación,
+  cliente, expediente, sección, proyecto y documento. Puede diferir de los
+  cambios de ventana.
+- **Cambio de expediente:** transición entre dos expedientes identificados; un
+  intervalo sin expediente no inventa una transición.
+- **WorkSession:** agrupación reconstruible de eventos que representa una tarea
+  intelectual según reglas explícitas. No es sinónimo de ventana, aplicación ni
+  ejecución completa del proceso.
+
+UI Automation es una capacidad opcional. Cada agregado conserva su estado de
+medición (`available`, `partial`, `unavailable`) y una causa técnica cuando
+corresponde. Los reportes sólo presentan cero si la capacidad estuvo disponible.
+La captura básica continúa aunque la clasificación de controles no funcione.
+
+El reporte exportable consulta SQLite en modo local y emite sólo agregados:
+duraciones por categoría de aplicación, cantidades de aplicaciones y expedientes,
+transiciones, sesiones e interacciones. No exporta títulos, nombres de clientes o
+expedientes, documentos, rutas, correos, teléfonos ni identificadores derivados.
+
+La atribución de una ventana auxiliar de Lex Doctor requiere continuidad
+inmediata con una ventana ya confirmada de Lex Doctor y un título perteneciente a
+la lista estructural permitida. Esta evidencia puede propagarse entre ventanas
+auxiliares consecutivas, pero se corta al entrar en cualquier otra aplicación.
+Los porcentajes de cobertura se ponderan por duración, no por cantidad de eventos.
+
 ## Filosofía
 
 Second Chair no es un software de automatización.

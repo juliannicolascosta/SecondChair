@@ -60,6 +60,8 @@ def main():
         "Clasificación de controles UI: "
         + ("activa" if ui_inspector.available else "no disponible; captura básica activa")
     )
+    if not ui_inspector.available:
+        print(f"Diagnóstico UI Automation: {ui_inspector.reason or 'not_configured'}")
 
     try:
         interaction_collector.start()

@@ -120,6 +120,20 @@ def initialize(database=DATABASE):
             )
         """)
 
+        interaction_columns = {
+            row[1]
+            for row in cursor.execute("PRAGMA table_info(work_session_interactions)")
+        }
+        if "control_metrics_status" not in interaction_columns:
+            cursor.execute(
+                "ALTER TABLE work_session_interactions "
+                "ADD COLUMN control_metrics_status TEXT NOT NULL DEFAULT 'unavailable'"
+            )
+        if "control_metrics_reason" not in interaction_columns:
+            cursor.execute(
+                "ALTER TABLE work_session_interactions ADD COLUMN control_metrics_reason TEXT"
+            )
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS daily_idle_metrics (
                 day TEXT PRIMARY KEY,
@@ -234,9 +248,12 @@ def save_session_interactions(session, database=DATABASE):
             INSERT INTO work_session_interactions (
                 session_key, session_id, day, start_time, end_time,
                 duration, label, {', '.join(INTERACTION_COLUMNS)}
-            ) VALUES ({', '.join('?' for _ in range(7 + len(INTERACTION_COLUMNS)))})
+                , control_metrics_status, control_metrics_reason
+            ) VALUES ({', '.join('?' for _ in range(9 + len(INTERACTION_COLUMNS)))})
             ON CONFLICT(session_key) DO UPDATE SET
-                {', '.join(f'{name}=excluded.{name}' for name in INTERACTION_COLUMNS)}
+                {', '.join(f'{name}=excluded.{name}' for name in INTERACTION_COLUMNS)},
+                control_metrics_status=excluded.control_metrics_status,
+                control_metrics_reason=excluded.control_metrics_reason
             """,
             (
                 session.learning_id,
@@ -247,6 +264,8 @@ def save_session_interactions(session, database=DATABASE):
                 session.duration,
                 label,
                 *values,
+                session.control_metrics_status,
+                session.control_metrics_reason,
             ),
         )
 

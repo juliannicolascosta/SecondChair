@@ -30,6 +30,8 @@ class WorkSession:
     combo_boxes_used: int = 0
     menus_used: int = 0
     window_switches: int = 0
+    control_metrics_status: str = "unavailable"
+    control_metrics_reason: str | None = None
     events: list[Event] = field(default_factory=list, repr=False)
     _application_seconds: dict[str, int] = field(
         default_factory=lambda: defaultdict(int),
