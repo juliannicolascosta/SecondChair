@@ -9,6 +9,9 @@
 - Comparación descriptiva entre ejecuciones con la misma etiqueta.
 - Recorte temporal exacto de interacciones independiente de los límites de WorkSession.
 - Estado explícito `collecting`, `pending`, `session_aggregate` o `exact`.
+- Hotkey global `F8` para iniciar/finalizar sin regresar a la consola.
+- La pulsación técnica de `F8` se excluye de las métricas de calibración.
+- ID visible en todos los resúmenes y comando CLI `list`.
 - Importación segura de analítica y pruebas aunque `PyGetWindow` no esté instalado.
 - Suite reproducible en Windows mediante GitHub Actions.
 - Sin IA, screenshots, clipboard, texto escrito ni valores de campos.

@@ -10,6 +10,7 @@ de campos, rutas ni identidades al registro de la traza.
 ```powershell
 python -m src.workflow start "Generar factura"
 python -m src.workflow stop
+python -m src.workflow list
 python -m src.workflow show TRACE_ID
 python -m src.workflow compare TRACE_ID_1 TRACE_ID_2
 python -m src.workflow export TRACE_ID
@@ -21,6 +22,21 @@ El proceso principal detecta trazas cerradas por la CLI y calcula las
 interacciones comprendidas exactamente entre sus límites temporales, incluso si
 la traza comienza o termina dentro de una `WorkSession`. Hasta completar ese
 cálculo, el reporte marca las cifras como `pending` o `session_aggregate`.
+
+### Calibración desde la consola principal
+
+Con `python -m src.main` en ejecución no hace falta abrir otra consola:
+
+1. Presione `F8` una sola vez, sin Enter.
+2. Escriba el nombre del flujo y confirme con Enter.
+3. Durante la cuenta regresiva de tres segundos cambie a la aplicación inicial.
+4. Realice el flujo normalmente.
+5. Presione `F8` desde cualquier aplicación para finalizar; no necesita regresar
+   a la consola.
+
+SecondChair excluye del agregado la pulsación técnica de `F8`, calcula el
+intervalo exacto y muestra el ID y el resumen. Las calibraciones se consultan
+con `python -m src.workflow list`.
 
 > **SecondChair mide interacciones, no contenido.**
 

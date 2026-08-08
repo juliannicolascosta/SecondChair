@@ -59,8 +59,8 @@ class WorkflowTraceRepository:
             )
         return True
 
-    def finish(self, cancelled=False):
-        now = self.clock()
+    def finish(self, cancelled=False, end_time=None):
+        now = end_time or self.clock()
         status = "cancelled" if cancelled else "completed"
         with closing(connect(self.database)) as conn, conn:
             row = conn.execute(
@@ -120,6 +120,13 @@ class WorkflowTraceRepository:
             ).fetchone()
         return self._build(trace, sessions, interval)
 
+    def current(self):
+        with closing(connect(self.database)) as conn:
+            row = conn.execute(
+                "SELECT id FROM workflow_traces WHERE status='running'"
+            ).fetchone()
+        return self.get(row[0]) if row is not None else None
+
     def list(self, label=None):
         sql = "SELECT id FROM workflow_traces"
         params = ()
@@ -127,7 +134,7 @@ class WorkflowTraceRepository:
             sql += " WHERE label=?"
             params = (label,)
         with closing(connect(self.database)) as conn:
-            rows = conn.execute(sql + " ORDER BY start_time", params).fetchall()
+            rows = conn.execute(sql + " ORDER BY start_time DESC", params).fetchall()
         return [self.get(row[0]) for row in rows]
 
     @staticmethod

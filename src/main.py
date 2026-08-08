@@ -23,6 +23,8 @@ from src.telemetry.windows import get_idle_seconds
 from src.telemetry.idle import IdleTimeTracker
 from src.telemetry.shutdown import WindowsShutdownSignal
 from src.workflows.repository import WorkflowTraceRepository
+from src.workflows.console import ConsoleCalibrationController
+from src.workflows.hotkey import WindowsCalibrationHotkey
 
 
 def main():
@@ -48,6 +50,11 @@ def main():
     idle_tracker = IdleTimeTracker(get_idle_seconds)
     shutdown_signal = WindowsShutdownSignal()
     workflow_repository = WorkflowTraceRepository()
+    calibration_console = ConsoleCalibrationController(
+        workflow_repository,
+        interaction_collector,
+        hotkey_source=WindowsCalibrationHotkey(),
+    )
 
     def persist_session(session):
         save_session_interactions(session)
@@ -70,6 +77,7 @@ def main():
 
     try:
         interaction_collector.start()
+        calibration_console.start()
         observe(
             memory,
             idle_tracker=idle_tracker,
@@ -78,6 +86,7 @@ def main():
         )
 
     finally:
+        calibration_console.stop()
         interaction_collector.stop()
         shutdown_signal.close()
         save_idle_metrics(date.today(), idle_tracker)

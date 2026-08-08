@@ -84,6 +84,7 @@ class WorkflowTraceTests(unittest.TestCase):
             output = []
             render_trace(trace, output.append)
             self.assertIn("Controles UI: no disponibles", output)
+            self.assertIn(f"ID: {trace.id}", output)
 
     def test_anonymous_export_removes_label_processes_and_session_ids(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -145,6 +146,25 @@ class WorkflowTraceTests(unittest.TestCase):
         collector.attach_to_session(session())
         result = collector.aggregate_between(START, START + timedelta(seconds=2))
         self.assertEqual(result["counters"].keyboard_actions, 1)
+
+    def test_calibration_boundary_excludes_only_nearest_hotkey_callback(self):
+        collector = InteractionCollector()
+        collector.running = True
+        collector.record(
+            InteractionType.KEYBOARD_ACTIVITY,
+            timestamp=START + timedelta(seconds=1),
+            window={"application": "Word", "process_name": "WINWORD.EXE"},
+        )
+        collector.record(
+            InteractionType.KEYBOARD_ACTIVITY,
+            timestamp=START + timedelta(seconds=5),
+            window={"application": "PowerShell", "process_name": "pwsh.exe"},
+        )
+        collector.mark_control_boundary(START + timedelta(seconds=5, milliseconds=50))
+        result = collector.aggregate_between(START, START + timedelta(seconds=6))
+        self.assertEqual(result["counters"].keyboard_actions, 1)
+        self.assertEqual(result["applications"], ["Word"])
+        self.assertEqual(result["processes"], ["WINWORD.EXE"])
 
 
 if __name__ == "__main__":

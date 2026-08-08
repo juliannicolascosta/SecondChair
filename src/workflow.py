@@ -4,7 +4,9 @@ import argparse
 import json
 
 from src.workflows.repository import WorkflowTraceRepository
-from src.workflows.reports import anonymous_trace, compare_traces, render_trace
+from src.workflows.reports import (
+    anonymous_trace, compare_traces, render_trace, render_trace_list,
+)
 
 
 def main(argv=None):
@@ -14,6 +16,8 @@ def main(argv=None):
     start.add_argument("label")
     commands.add_parser("stop")
     commands.add_parser("cancel")
+    list_command = commands.add_parser("list")
+    list_command.add_argument("--label")
     show = commands.add_parser("show")
     show.add_argument("trace_id")
     compare = commands.add_parser("compare")
@@ -30,6 +34,8 @@ def main(argv=None):
         render_trace(repository.finish())
     elif args.command == "cancel":
         render_trace(repository.finish(cancelled=True))
+    elif args.command == "list":
+        render_trace_list(repository.list(args.label))
     elif args.command == "show":
         render_trace(repository.get(args.trace_id))
     elif args.command == "compare":

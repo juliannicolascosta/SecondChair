@@ -11,6 +11,9 @@
 - [x] Suite Windows en CI y dependencias mínimas de runtime
 - [x] Recorte exacto cuando una traza comienza dentro de una WorkSession
 - [x] Finalización asíncrona de trazas cerradas desde la CLI
+- [x] Calibración completa mediante hotkey global `F8`
+- [x] Exclusión del hotkey técnico en interacciones, aplicaciones y transiciones
+- [x] IDs visibles y listado de calibraciones por consola o CLI
 - [ ] Validación controlada en Lex Doctor, Word, Edge, Outlook y Explorador
 
 ## v0.1.2 — Reliability & Calibration

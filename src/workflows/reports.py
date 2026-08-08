@@ -38,6 +38,7 @@ def compare_traces(first, second):
 
 
 def render_trace(trace, output=print):
+    output(f"ID: {trace.id}")
     output(f"FLUJO: {trace.label}")
     output(f"Estado: {trace.status}")
     output(f"Duración: {trace.duration}s")
@@ -59,3 +60,16 @@ def render_trace(trace, output=print):
         output(f"Desplegables: {trace.combo_boxes_used}")
         output(f"Menús: {trace.menus_used}")
     return trace
+
+
+def render_trace_list(traces, output=print):
+    if not traces:
+        output("No hay calibraciones registradas.")
+        return traces
+    output("CALIBRACIONES")
+    for trace in traces:
+        output(
+            f"{trace.id} | {trace.start_time:%Y-%m-%d %H:%M} | "
+            f"{trace.status} | {trace.label} | {trace.duration}s"
+        )
+    return traces
